@@ -1,4 +1,5 @@
 using Api.Controllers;
+using Core.NuggetAggregate;
 
 namespace Api.Models;
 
