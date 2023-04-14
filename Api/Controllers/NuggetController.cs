@@ -1,4 +1,4 @@
-using Api.Models;
+using Api.Models.Nuggets;
 using Core.NuggetAggregate;
 using Core.NuggetAggregate.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -17,16 +17,16 @@ public class NuggetController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create(CreateNuggetRequest nugget)
+    public async Task<IActionResult> Create(CreateNuggetRequest nugget)
     {
-        _nuggetDomain.Create(new CreateNuggetCommand(nugget.Title, nugget.Description));
-        return Ok();
+        var nuggetId = await _nuggetDomain.CreateAsync(new CreateNuggetCommand(nugget.Title, nugget.Description));
+        return Ok(nuggetId);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetList()
     {
-        var nuggets = await _nuggetDomain.Get();
+        var nuggets = await _nuggetDomain.GetAsync();
         
         return Ok(nuggets.Select(n => (GetNuggetResponse)n));
     }
@@ -34,7 +34,7 @@ public class NuggetController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
-        var nugget = await _nuggetDomain.Get(id);
+        var nugget = await _nuggetDomain.GetAsync(id);
         if (nugget == null)
         {
             return NotFound();
@@ -45,7 +45,7 @@ public class NuggetController : ControllerBase
     [HttpPut("{id:guid}")]
     public IActionResult Update(Guid id, UpdateNuggetRequest nuggetUpdate)
     {
-        _nuggetDomain.Update(new UpdateNuggetCommand(id, nuggetUpdate.Title, nuggetUpdate.Description));
+        _nuggetDomain.UpdateAsync(new UpdateNuggetCommand(id, nuggetUpdate.Title, nuggetUpdate.Description));
 
         return Ok();
     }
@@ -53,7 +53,7 @@ public class NuggetController : ControllerBase
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id)
     {
-        _nuggetDomain.Delete(id);
+        _nuggetDomain.DeleteAsync(id);
         return Ok();
     }
 }

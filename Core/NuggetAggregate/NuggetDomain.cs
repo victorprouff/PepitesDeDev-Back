@@ -15,15 +15,19 @@ public class NuggetDomain : INuggetDomain
         _repository = repository;
     }
 
-    public async Task Create(CreateNuggetCommand createNuggetCommand)
+    public async Task<Guid> CreateAsync(CreateNuggetCommand createNuggetCommand)
     {
-        await _repository.CreateAsync(
-            Nugget.Create(createNuggetCommand.Title,
-                createNuggetCommand.Description,
-                _clock.GetCurrentInstant()));
+        var newNugget = Nugget.Create(
+            createNuggetCommand.Title,
+            createNuggetCommand.Description,
+            _clock.GetCurrentInstant());
+        
+        await _repository.CreateAsync(newNugget);
+
+        return newNugget.Id;
     }
 
-    public async Task Update(UpdateNuggetCommand createNuggetCommand)
+    public async Task UpdateAsync(UpdateNuggetCommand createNuggetCommand)
     {
         var nugget = await _repository.GetById(createNuggetCommand.Id);
         if (nugget is null)
@@ -36,11 +40,11 @@ public class NuggetDomain : INuggetDomain
         await _repository.UpdateAsync(nugget);
     }
 
-    public async Task<Nugget?> Get(Guid id) => await _repository.GetById(id);
+    public async Task<Nugget?> GetAsync(Guid id) => await _repository.GetById(id);
 
-    public async Task<IEnumerable<Nugget>> Get() => await _repository.Get();
+    public async Task<IEnumerable<Nugget>> GetAsync() => await _repository.Get();
     
-    public void Delete(Guid id)
+    public void DeleteAsync(Guid id)
     {
         _repository.Delete(id);
     }

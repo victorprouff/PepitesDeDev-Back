@@ -2,23 +2,21 @@ using FluentMigrator;
 
 namespace DbMigration.Migrations;
 
-[Migration(202304131811)]
-public class InitNuggetTables : Migration
+[Migration(202304141820)]
+public class AddUserTable : Migration
 {
     public override void Up()
     {
-        Execute.Script("InstallExtension.sql");
-
-        Create.Table("nuggets")
+        Create.Table("users")
             .WithColumn("id").AsGuid().NotNullable().PrimaryKey().Unique().WithDefaultValue(SystemMethods.NewGuid)
-            .WithColumn("title").AsString().NotNullable()
-            .WithColumn("description").AsString().NotNullable()
+            .WithColumn("email").AsString().NotNullable()
+            .WithColumn("password").AsString().NotNullable()
             .WithColumn("created_at").AsDateTimeOffset().NotNullable().Indexed()
             .WithColumn("updated_at").AsDateTimeOffset().Nullable().Indexed();
     }
 
     public override void Down()
     {
-        Delete.Table("nuggets");
+        Delete.Table("users");
     }
 }

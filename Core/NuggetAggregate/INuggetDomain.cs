@@ -4,9 +4,9 @@ namespace Core.NuggetAggregate;
 
 public interface INuggetDomain
 {
-    Task Create(CreateNuggetCommand createNuggetCommand);
-    Task Update(UpdateNuggetCommand createNuggetCommand);
-    Task<Nugget?> Get(Guid id);
-    Task<IEnumerable<Nugget>> Get();
-    void Delete(Guid id);
+    Task<Guid> CreateAsync(CreateNuggetCommand createNuggetCommand);
+    Task UpdateAsync(UpdateNuggetCommand createNuggetCommand);
+    Task<Nugget?> GetAsync(Guid id);
+    Task<IEnumerable<Nugget>> GetAsync();
+    void DeleteAsync(Guid id);
 }

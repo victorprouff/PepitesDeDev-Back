@@ -8,7 +8,7 @@ var serviceProvider = new ServiceCollection()
         rb => rb
             .AddPostgres()
             .WithGlobalConnectionString(Environment.GetEnvironmentVariable("ConnectionStrings__PepitesDatabase"))
-            .ScanIn(typeof(InitNuggetTables).Assembly)
+            .ScanIn(typeof(InitNuggetTable).Assembly)
             .For.Migrations())
     .AddLogging(lb => lb.AddFluentMigratorConsole())
     .BuildServiceProvider(false);
