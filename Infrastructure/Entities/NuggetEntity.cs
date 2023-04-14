@@ -1,0 +1,34 @@
+using Core.NuggetAggregate;
+using NodaTime;
+
+namespace Infrastructure.Entities;
+
+public class NuggetEntity
+{
+    public NuggetEntity()
+    {
+    }
+    
+    public NuggetEntity(Guid id, string title, string description, Instant createdAt, Instant? updatedAt)
+    {
+        Id = id;
+        Title = title;
+        Description = description;
+        CreatedAt = createdAt;
+        UpdatedAt = updatedAt;
+    }
+    public Guid Id { get; set; }
+    public string Title { get; set; } = default!;
+    public string Description { get; set; } = default!;
+    public Instant CreatedAt { get; set; }
+    public Instant? UpdatedAt { get; set; }
+    
+
+    public static explicit operator Nugget?(NuggetEntity? nugget) =>
+        nugget is null
+            ? null
+            : new Nugget(nugget.Id, nugget.Title, nugget.Description, nugget.CreatedAt, nugget.UpdatedAt);
+
+    public static explicit operator NuggetEntity(Nugget nugget) =>
+        new(nugget.Id, nugget.Title, nugget.Description, nugget.CreatedAt, nugget.UpdatedAt);
+}

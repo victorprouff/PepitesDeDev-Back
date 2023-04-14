@@ -1,37 +1,47 @@
+using Core.Interfaces;
 using Core.NuggetAggregate.Models;
+using NodaTime;
 
 namespace Core.NuggetAggregate;
 
 public class NuggetDomain : INuggetDomain
 {
-    private List<Nugget> _nuggets = new();
-
-    public void Create(CreateNuggetCommand createNuggetCommand)
+    private readonly IClock _clock;
+    private readonly INuggetRepository _repository;
+    
+    public NuggetDomain(IClock clock, INuggetRepository repository)
     {
-        _nuggets.Add(new Nugget(createNuggetCommand.Title, createNuggetCommand.Description));
+        _clock = clock;
+        _repository = repository;
     }
 
-    public void Update(UpdateNuggetCommand createNuggetCommand)
+    public async Task Create(CreateNuggetCommand createNuggetCommand)
     {
-        var nugget = _nuggets.FirstOrDefault(n => n.Id == createNuggetCommand.Id);
+        await _repository.CreateAsync(
+            Nugget.Create(createNuggetCommand.Title,
+                createNuggetCommand.Description,
+                _clock.GetCurrentInstant()));
+    }
+
+    public async Task Update(UpdateNuggetCommand createNuggetCommand)
+    {
+        var nugget = await _repository.GetById(createNuggetCommand.Id);
         if (nugget is null)
         {
             throw new Exception(); // Todo : implémenter les exceptions
         }
         
-        nugget.Update(createNuggetCommand.Title, createNuggetCommand.Description);
+        nugget.Update(createNuggetCommand.Title, createNuggetCommand.Description, _clock.GetCurrentInstant());
+        
+        await _repository.UpdateAsync(nugget);
     }
 
-    public Nugget? Get(Guid id) => _nuggets.FirstOrDefault(n => n.Id == id);
+    public async Task<Nugget?> Get(Guid id) => await _repository.GetById(id);
 
-    public IEnumerable<Nugget> Get() => _nuggets;
+    public async Task<IEnumerable<Nugget>> Get() => await _repository.Get();
     
     public void Delete(Guid id)
     {
-        var nugget = _nuggets.FirstOrDefault(n => n.Id == id);
-        if (nugget != null)
-        {
-            _nuggets.Remove(nugget);
-        }
+        _repository.Delete(id);
     }
 }

@@ -24,16 +24,17 @@ public class NuggetController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetList()
+    public async Task<IActionResult> GetList()
     {
+        var nuggets = await _nuggetDomain.Get();
         
-        return Ok(_nuggetDomain.Get().Select(n => (GetNuggetResponse)n));
+        return Ok(nuggets.Select(n => (GetNuggetResponse)n));
     }
     
     [HttpGet("{id:guid}")]
-    public IActionResult Get(Guid id)
+    public async Task<IActionResult> Get(Guid id)
     {
-        var nugget = _nuggetDomain.Get(id);
+        var nugget = await _nuggetDomain.Get(id);
         if (nugget == null)
         {
             return NotFound();

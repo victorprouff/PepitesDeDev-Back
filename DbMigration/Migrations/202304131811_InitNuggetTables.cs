@@ -9,18 +9,16 @@ public class InitNuggetTables : Migration
     {
         Execute.Script("InstallExtension.sql");
 
-        Create.Table("Nugget")
+        Create.Table("nuggets")
             .WithColumn("id").AsGuid().NotNullable().PrimaryKey().Unique().WithDefaultValue(SystemMethods.NewGuid)
-            .WithColumn("Title").AsString().NotNullable()
-            .WithColumn("Description").AsString().NotNullable()
+            .WithColumn("title").AsString().NotNullable()
+            .WithColumn("description").AsString().NotNullable()
             .WithColumn("created_at").AsDateTimeOffset().NotNullable().Indexed()
-            .WithColumn("created_by").AsString().NotNullable().Indexed()
-            .WithColumn("updated_at").AsDateTimeOffset().NotNullable().Indexed()
-            .WithColumn("updated_by").AsString().NotNullable().Indexed();
+            .WithColumn("updated_at").AsDateTimeOffset().Nullable().Indexed();
     }
 
     public override void Down()
     {
-        Delete.Table("Nugget");
+        Delete.Table("nuggets");
     }
 }
