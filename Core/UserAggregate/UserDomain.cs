@@ -1,4 +1,5 @@
 using Core.Interfaces;
+using Core.Services;
 using Core.UserAggregate.Models;
 using NodaTime;
 
@@ -8,11 +9,19 @@ public class UserDomain : IUserDomain
 {
     private readonly IClock _clock;
     private readonly IUserRepository _repository;
-    
-    public UserDomain(IClock clock, IUserRepository repository)
+    private readonly IJwtService _jwtService;
+
+    public UserDomain(IClock clock, IUserRepository repository, IJwtService jwtService)
     {
         _clock = clock;
         _repository = repository;
+        _jwtService = jwtService;
+    }
+
+    public async Task<string?> Authenticate(string email, string password)
+    {
+        var userId = await _repository.Authenticate(email, password);
+        return userId is null ? null : _jwtService.GenerateJwtToken((Guid)userId);
     }
 
     public async Task<Guid> CreateAsync(CreateUserCommand user, CancellationToken cancellationToken = default)

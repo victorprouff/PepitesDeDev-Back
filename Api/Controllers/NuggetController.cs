@@ -1,3 +1,4 @@
+using Api.Authorization;
 using Api.Models.Nuggets;
 using Core.NuggetAggregate;
 using Core.NuggetAggregate.Models;
@@ -16,13 +17,7 @@ public class NuggetController : ControllerBase
         _nuggetDomain = nuggetDomain;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(CreateNuggetRequest nugget)
-    {
-        var nuggetId = await _nuggetDomain.CreateAsync(new CreateNuggetCommand(nugget.Title, nugget.Description));
-        return Ok(nuggetId);
-    }
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetList()
     {
@@ -31,6 +26,7 @@ public class NuggetController : ControllerBase
         return Ok(nuggets.Select(n => (GetNuggetResponse)n));
     }
     
+    [AllowAnonymous]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
@@ -42,6 +38,13 @@ public class NuggetController : ControllerBase
         return Ok((GetNuggetResponse)nugget);
     }
 
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateNuggetRequest nugget)
+    {
+        var nuggetId = await _nuggetDomain.CreateAsync(new CreateNuggetCommand(nugget.Title, nugget.Description));
+        return Ok(nuggetId);
+    }
+    
     [HttpPut("{id:guid}")]
     public IActionResult Update(Guid id, UpdateNuggetRequest nuggetUpdate)
     {

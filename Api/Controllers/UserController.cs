@@ -1,3 +1,4 @@
+using Api.Authorization;
 using Api.Models.Users;
 using Core.UserAggregate;
 using Core.UserAggregate.Models;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
@@ -16,10 +18,23 @@ public class UserController : ControllerBase
         _userDomain = userDomain;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(CreateUserRequest nugget)
+    [AllowAnonymous]
+    [HttpPost("authenticate")]
+    public async Task<IActionResult> Authenticate(AuthenticateUserRequest request)
     {
-        var userId = await _userDomain.CreateAsync(new CreateUserCommand(nugget.Email, nugget.Password));
+        var token = await _userDomain.Authenticate(request.Email, request.Password);
+        if (token is null)
+        {
+            return BadRequest(new { message = "Username or password is incorrect" });
+        }
+        
+        return Ok(token);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateUserRequest request)
+    {
+        var userId = await _userDomain.CreateAsync(new CreateUserCommand(request.Email, request.Password));
         return Ok(userId);
     }
 

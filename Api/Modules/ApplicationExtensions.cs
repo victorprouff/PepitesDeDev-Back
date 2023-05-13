@@ -1,5 +1,7 @@
 using Core.Interfaces;
+using Core.Models.Authentification;
 using Core.NuggetAggregate;
+using Core.Services;
 using Core.UserAggregate;
 using Infrastructure.Repositories;
 using NodaTime;
@@ -12,6 +14,8 @@ public static class ApplicationExtensions
     {
         services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
 
+        services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
+
         services.AddTransient<INuggetRepository, NuggetRepository>(_ =>
             new NuggetRepository(configuration.GetConnectionString("PepitesDatabase")));
         services.AddTransient<IUserRepository, UserRepository>(_ =>
@@ -20,6 +24,8 @@ public static class ApplicationExtensions
         services.AddTransient<INuggetDomain, NuggetDomain>();
         services.AddTransient<IUserDomain, UserDomain>();
 
+        services.AddScoped<IJwtService, JwtService>();
+        
         return services;
     }
 }

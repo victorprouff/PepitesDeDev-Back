@@ -11,6 +11,15 @@ public class UserRepository : BaseRepository, IUserRepository
     {
     }
 
+    public async Task<Guid?> Authenticate(string email, string password, CancellationToken cancellationToken = default)
+    {
+        var sql = @"
+                SELECT id FROM users WHERE email = @Email AND password = @Password;";
+
+        await using var connection = GetConnection();
+        return await connection.QueryFirstOrDefaultAsync<Guid>(sql, new { email, password }, commandTimeout: 1);
+    }
+
     public async Task CreateAsync(User user, CancellationToken cancellationToken = default)
     {
         var sql =

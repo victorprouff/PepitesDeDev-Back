@@ -1,4 +1,6 @@
+using Api.Authorization;
 using Api.Modules;
+using Core.Models.Authentification;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 
@@ -31,6 +33,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.MapControllers();
 
