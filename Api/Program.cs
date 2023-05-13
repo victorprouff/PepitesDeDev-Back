@@ -1,6 +1,5 @@
 using Api.Authorization;
 using Api.Modules;
-using Core.Models.Authentification;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 
