@@ -18,10 +18,17 @@ public class UserDomain : IUserDomain
         _jwtService = jwtService;
     }
 
-    public async Task<string?> Authenticate(string email, string password)
+    public async Task<AuthenticateResponse?> Authenticate(string email, string password)
     {
         var userId = await _repository.Authenticate(email, password);
-        return userId is null ? null : _jwtService.GenerateJwtToken((Guid)userId);
+        if (userId is null)
+        {
+            return null;
+        }
+        
+        var token = _jwtService.GenerateJwtToken((Guid)userId);
+
+        return new AuthenticateResponse((Guid)userId, email, token);
     }
 
     public async Task<Guid> CreateAsync(CreateUserCommand user, CancellationToken cancellationToken = default)

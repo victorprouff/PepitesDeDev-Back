@@ -22,13 +22,13 @@ public class UserController : ControllerBase
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate(AuthenticateUserRequest request)
     {
-        var token = await _userDomain.Authenticate(request.Email, request.Password);
-        if (token is null)
+        var response = await _userDomain.Authenticate(request.Email, request.Password);
+        if (response is null)
         {
             return BadRequest(new { message = "Username or password is incorrect" });
         }
         
-        return Ok(token);
+        return Ok((AuthenticateUserResponse)response);
     }
 
     [HttpPost]
