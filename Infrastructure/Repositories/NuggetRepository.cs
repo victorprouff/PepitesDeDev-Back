@@ -14,7 +14,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task CreateAsync(Nugget nugget, CancellationToken cancellationToken = default)
     {
         var sql =
-            @"INSERT INTO nuggets (id, title, description, created_at, updated_at) VALUES (@Id, @Title, @Description, @CreatedAt, @UpdatedAt);";
+            @"INSERT INTO nuggets (id, title, content, created_at, updated_at) VALUES (@Id, @Title, @Content, @CreatedAt, @UpdatedAt);";
 
         await using var connection = GetConnection();
         await connection.ExecuteAsync(sql, (NuggetEntity)nugget, commandTimeout: 1);
@@ -24,7 +24,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     {
         await using var connection = GetConnection();
         var sql =
-            @"UPDATE nuggets SET title = @Title, description = @Description, updated_at = @UpdatedAt WHERE id = @Id;";
+            @"UPDATE nuggets SET title = @Title, content = @Content, updated_at = @UpdatedAt WHERE id = @Id;";
 
         await connection.ExecuteAsync(
             sql,
@@ -32,7 +32,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
             {
                 nugget.Id,
                 nugget.Title,
-                nugget.Description,
+                nugget.Content,
                 nugget.UpdatedAt
             },
             commandTimeout: 1);
@@ -49,7 +49,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
 
     public async Task<IEnumerable<Nugget>> Get(CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, title, description, created_at, updated_at FROM nuggets;";
+        var sql = @"SELECT id, title, content, created_at, updated_at FROM nuggets;";
 
         await using var connexion = GetConnection();
         var nuggets = await connexion.QueryAsync<NuggetEntity>(
@@ -61,7 +61,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
 
     public async Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, title, description, created_at, updated_at FROM nuggets WHERE id = @Id";
+        var sql = @"SELECT id, title, content, created_at, updated_at FROM nuggets WHERE id = @Id";
 
         await using var connexion = GetConnection();
         return (Nugget?)await connexion.QueryFirstOrDefaultAsync<NuggetEntity?>(

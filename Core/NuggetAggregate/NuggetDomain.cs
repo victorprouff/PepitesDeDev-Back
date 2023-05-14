@@ -19,7 +19,7 @@ public class NuggetDomain : INuggetDomain
     {
         var newNugget = Nugget.Create(
             createNuggetCommand.Title,
-            createNuggetCommand.Description,
+            createNuggetCommand.Content,
             _clock.GetCurrentInstant());
         
         await _repository.CreateAsync(newNugget);
@@ -35,7 +35,7 @@ public class NuggetDomain : INuggetDomain
             throw new Exception(); // Todo : implémenter les exceptions
         }
         
-        nugget.Update(createNuggetCommand.Title, createNuggetCommand.Description, _clock.GetCurrentInstant());
+        nugget.Update(createNuggetCommand.Title, createNuggetCommand.Content, _clock.GetCurrentInstant());
         
         await _repository.UpdateAsync(nugget);
     }

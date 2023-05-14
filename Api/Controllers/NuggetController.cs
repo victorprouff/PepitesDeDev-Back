@@ -41,14 +41,14 @@ public class NuggetController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateNuggetRequest nugget)
     {
-        var nuggetId = await _nuggetDomain.CreateAsync(new CreateNuggetCommand(nugget.Title, nugget.Description));
+        var nuggetId = await _nuggetDomain.CreateAsync(new CreateNuggetCommand(nugget.Title, nugget.Content));
         return Ok(nuggetId);
     }
     
     [HttpPut("{id:guid}")]
     public IActionResult Update(Guid id, UpdateNuggetRequest nuggetUpdate)
     {
-        _nuggetDomain.UpdateAsync(new UpdateNuggetCommand(id, nuggetUpdate.Title, nuggetUpdate.Description));
+        _nuggetDomain.UpdateAsync(new UpdateNuggetCommand(id, nuggetUpdate.Title, nuggetUpdate.Content));
 
         return Ok();
     }

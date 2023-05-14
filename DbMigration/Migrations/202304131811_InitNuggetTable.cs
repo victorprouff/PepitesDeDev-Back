@@ -12,7 +12,7 @@ public class InitNuggetTable : Migration
         Create.Table("nuggets")
             .WithColumn("id").AsGuid().NotNullable().PrimaryKey().Unique().WithDefaultValue(SystemMethods.NewGuid)
             .WithColumn("title").AsString().NotNullable()
-            .WithColumn("description").AsString().NotNullable()
+            .WithColumn("content").AsString().NotNullable()
             .WithColumn("created_at").AsDateTimeOffset().NotNullable().Indexed()
             .WithColumn("updated_at").AsDateTimeOffset().Nullable().Indexed();
     }
