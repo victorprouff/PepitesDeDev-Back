@@ -31,6 +31,7 @@ public class UserController : ControllerBase
         return Ok((AuthenticateUserResponse)response);
     }
 
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Create(CreateUserRequest request)
     {

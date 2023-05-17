@@ -21,7 +21,7 @@ public class UserDomain : IUserDomain
     public async Task<AuthenticateResponse?> Authenticate(string email, string password)
     {
         var userId = await _repository.Authenticate(email, password);
-        if (userId is null)
+        if (userId is null || userId == Guid.Empty)
         {
             return null;
         }
