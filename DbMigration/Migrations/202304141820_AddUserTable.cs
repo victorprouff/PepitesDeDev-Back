@@ -10,7 +10,8 @@ public class AddUserTable : Migration
         Create.Table("users")
             .WithColumn("id").AsGuid().NotNullable().PrimaryKey().Unique().WithDefaultValue(SystemMethods.NewGuid)
             .WithColumn("email").AsString().NotNullable()
-            .WithColumn("password").AsString().NotNullable()
+            .WithColumn("password").AsString().NotNullable().Unique()
+            .WithColumn("salt").AsString().NotNullable().Unique()
             .WithColumn("created_at").AsDateTimeOffset().NotNullable().Indexed()
             .WithColumn("updated_at").AsDateTimeOffset().Nullable().Indexed();
     }

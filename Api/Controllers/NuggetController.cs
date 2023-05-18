@@ -2,7 +2,7 @@ using Api.Authorization;
 using Api.Models.Nuggets;
 using Core.NuggetAggregate;
 using Core.NuggetAggregate.Models;
-using Core.Services;
+using Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;

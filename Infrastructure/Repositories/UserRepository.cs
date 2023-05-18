@@ -11,19 +11,20 @@ public class UserRepository : BaseRepository, IUserRepository
     {
     }
 
-    public async Task<Guid?> Authenticate(string email, string password, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var sql = @"
-                SELECT id FROM users WHERE email = @Email AND password = @Password;";
+                SELECT id, email, password, salt, created_at, updated_at FROM users WHERE email = @Email;";
 
-        await using var connection = GetConnection();
-        return await connection.QueryFirstOrDefaultAsync<Guid>(sql, new { email, password }, commandTimeout: 1);
+        await using var connexion = GetConnection();
+        return (User?)await connexion.QueryFirstOrDefaultAsync<UserEntity?>(
+            sql, new { email }, commandTimeout: 1);
     }
 
     public async Task CreateAsync(User user, CancellationToken cancellationToken = default)
     {
         var sql =
-            @"INSERT INTO users (id, email, password, created_at, updated_at) VALUES (@Id, @Email, @Password, @CreatedAt, @UpdatedAt);";
+            @"INSERT INTO users (id, email, password, salt, created_at, updated_at) VALUES (@Id, @Email, @Password, @Salt, @CreatedAt, @UpdatedAt);";
 
         await using var connection = GetConnection();
         await connection.ExecuteAsync(sql, (UserEntity)user, commandTimeout: 1);
@@ -40,7 +41,7 @@ public class UserRepository : BaseRepository, IUserRepository
 
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, email, password, created_at, updated_at FROM users WHERE id = @Id";
+        var sql = @"SELECT id, email, created_at, updated_at FROM users WHERE id = @Id";
 
         await using var connexion = GetConnection();
         return (User?)await connexion.QueryFirstOrDefaultAsync<UserEntity?>(

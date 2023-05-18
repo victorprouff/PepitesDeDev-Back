@@ -2,6 +2,7 @@ using Core.Interfaces;
 using Core.Models.Authentification;
 using Core.NuggetAggregate;
 using Core.Services;
+using Core.Services.Interfaces;
 using Core.UserAggregate;
 using Infrastructure.Repositories;
 using NodaTime;
@@ -20,6 +21,8 @@ public static class ApplicationExtensions
             new NuggetRepository(configuration.GetConnectionString("PepitesDatabase")));
         services.AddTransient<IUserRepository, UserRepository>(_ =>
             new UserRepository(configuration.GetConnectionString("PepitesDatabase")));
+        
+        services.AddTransient<IPasswordEncryptor, PasswordEncryptor>();
         
         services.AddTransient<INuggetDomain, NuggetDomain>();
         services.AddTransient<IUserDomain, UserDomain>();
