@@ -33,7 +33,13 @@ public class NuggetDomain : INuggetDomain
         var nugget = await _repository.GetById(createNuggetCommand.Id);
         if (nugget is null)
         {
-            throw new Exception(); // Todo : implémenter les exceptions
+            throw new Exception(); // Todo : NotFount
+        }
+
+        if (nugget.UserId != createNuggetCommand.UserId)
+        {
+            throw new Exception(); // Todo : Nugget ne t'appartient pas
+
         }
         
         nugget.Update(createNuggetCommand.Title, createNuggetCommand.Content, _clock.GetCurrentInstant());
@@ -45,8 +51,20 @@ public class NuggetDomain : INuggetDomain
 
     public async Task<IEnumerable<Nugget>> GetAsync() => await _repository.Get();
     
-    public void DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id, Guid userId)
     {
-        _repository.Delete(id);
+        var nugget = await _repository.GetById(id);
+        if (nugget is null)
+        {
+            throw new Exception(); // Todo : NotFount
+        }
+        
+        if (nugget.UserId != userId)
+        {
+            throw new Exception(); // Todo : Nugget ne t'appartient pas
+
+        }
+        
+        await _repository.Delete(id);
     }
 }

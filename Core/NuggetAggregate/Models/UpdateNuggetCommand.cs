@@ -1,3 +1,3 @@
 namespace Core.NuggetAggregate.Models;
 
-public record UpdateNuggetCommand(Guid Id, string? Title, string? Content);
+public record UpdateNuggetCommand(Guid Id, Guid UserId, string? Title, string? Content);

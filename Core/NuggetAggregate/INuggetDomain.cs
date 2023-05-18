@@ -8,5 +8,5 @@ public interface INuggetDomain
     Task UpdateAsync(UpdateNuggetCommand createNuggetCommand);
     Task<Nugget?> GetAsync(Guid id);
     Task<IEnumerable<Nugget>> GetAsync();
-    void DeleteAsync(Guid id);
+    Task DeleteAsync(Guid id, Guid userId);
 }

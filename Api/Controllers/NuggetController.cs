@@ -45,16 +45,16 @@ public class NuggetController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateNuggetRequest nugget)
     {
-        var userId = GetUserId();
-
-        var nuggetId = await _nuggetDomain.CreateAsync(new CreateNuggetCommand(nugget.Title, nugget.Content, userId));
+        var nuggetId = await _nuggetDomain.CreateAsync(
+            new CreateNuggetCommand(nugget.Title, nugget.Content, GetUserId()));
+        
         return Ok(nuggetId);
     }
 
     [HttpPut("{id:guid}")]
     public IActionResult Update(Guid id, UpdateNuggetRequest nuggetUpdate)
     {
-        _nuggetDomain.UpdateAsync(new UpdateNuggetCommand(id, nuggetUpdate.Title, nuggetUpdate.Content));
+        _nuggetDomain.UpdateAsync(new UpdateNuggetCommand(id, GetUserId(), nuggetUpdate.Title, nuggetUpdate.Content));
 
         return Ok();
     }
@@ -62,7 +62,7 @@ public class NuggetController : ControllerBase
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id)
     {
-        _nuggetDomain.DeleteAsync(id);
+        _nuggetDomain.DeleteAsync(id, GetUserId());
         return Ok();
     }
 
