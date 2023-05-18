@@ -11,6 +11,7 @@ public class InitNuggetTable : Migration
 
         Create.Table("nuggets")
             .WithColumn("id").AsGuid().NotNullable().PrimaryKey().Unique().WithDefaultValue(SystemMethods.NewGuid)
+            .WithColumn("user_id").AsGuid().NotNullable()
             .WithColumn("title").AsString().NotNullable()
             .WithColumn("content").AsString().NotNullable()
             .WithColumn("created_at").AsDateTimeOffset().NotNullable().Indexed()

@@ -2,6 +2,7 @@ using Api.Authorization;
 using Api.Models.Nuggets;
 using Core.NuggetAggregate;
 using Core.NuggetAggregate.Models;
+using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -11,10 +12,12 @@ namespace Api.Controllers;
 public class NuggetController : ControllerBase
 {
     private readonly INuggetDomain _nuggetDomain;
+    private readonly IJwtService _jwtService;
 
-    public NuggetController(INuggetDomain nuggetDomain)
+    public NuggetController(INuggetDomain nuggetDomain, IJwtService jwtService)
     {
         _nuggetDomain = nuggetDomain;
+        _jwtService = jwtService;
     }
 
     [AllowAnonymous]
@@ -22,10 +25,10 @@ public class NuggetController : ControllerBase
     public async Task<IActionResult> GetList()
     {
         var nuggets = await _nuggetDomain.GetAsync();
-        
+
         return Ok(nuggets.Select(n => (GetNuggetResponse)n));
     }
-    
+
     [AllowAnonymous]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
@@ -35,16 +38,19 @@ public class NuggetController : ControllerBase
         {
             return NotFound();
         }
+
         return Ok((GetNuggetResponse)nugget);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateNuggetRequest nugget)
     {
-        var nuggetId = await _nuggetDomain.CreateAsync(new CreateNuggetCommand(nugget.Title, nugget.Content));
+        var userId = GetUserId();
+
+        var nuggetId = await _nuggetDomain.CreateAsync(new CreateNuggetCommand(nugget.Title, nugget.Content, userId));
         return Ok(nuggetId);
     }
-    
+
     [HttpPut("{id:guid}")]
     public IActionResult Update(Guid id, UpdateNuggetRequest nuggetUpdate)
     {
@@ -58,5 +64,11 @@ public class NuggetController : ControllerBase
     {
         _nuggetDomain.DeleteAsync(id);
         return Ok();
+    }
+
+    private Guid GetUserId()
+    {
+        var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        return _jwtService.GetUserId(token);
     }
 }

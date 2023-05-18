@@ -20,6 +20,7 @@ public class NuggetDomain : INuggetDomain
         var newNugget = Nugget.Create(
             createNuggetCommand.Title,
             createNuggetCommand.Content,
+            createNuggetCommand.UserId,
             _clock.GetCurrentInstant());
         
         await _repository.CreateAsync(newNugget);

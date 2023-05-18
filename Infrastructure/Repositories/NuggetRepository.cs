@@ -14,7 +14,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task CreateAsync(Nugget nugget, CancellationToken cancellationToken = default)
     {
         var sql =
-            @"INSERT INTO nuggets (id, title, content, created_at, updated_at) VALUES (@Id, @Title, @Content, @CreatedAt, @UpdatedAt);";
+            @"INSERT INTO nuggets (id, title, content, user_id, created_at, updated_at) VALUES (@Id, @Title, @Content, @UserId, @CreatedAt, @UpdatedAt);";
 
         await using var connection = GetConnection();
         await connection.ExecuteAsync(sql, (NuggetEntity)nugget, commandTimeout: 1);
@@ -49,7 +49,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
 
     public async Task<IEnumerable<Nugget>> Get(CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, title, content, created_at, updated_at FROM nuggets;";
+        var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets;";
 
         await using var connexion = GetConnection();
         var nuggets = await connexion.QueryAsync<NuggetEntity>(
@@ -61,7 +61,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
 
     public async Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, title, content, created_at, updated_at FROM nuggets WHERE id = @Id";
+        var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets WHERE id = @Id";
 
         await using var connexion = GetConnection();
         return (Nugget?)await connexion.QueryFirstOrDefaultAsync<NuggetEntity?>(

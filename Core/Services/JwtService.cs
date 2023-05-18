@@ -10,7 +10,7 @@ namespace Core.Services;
 public class JwtService : IJwtService
 {
     private readonly AppSettings _appSettings;
-
+    
     public JwtService(IOptions<AppSettings> appSettings)
     {
         _appSettings = appSettings.Value;
@@ -67,5 +67,16 @@ public class JwtService : IJwtService
             // return null if validation fails
             return null;
         }
+    }
+
+    public Guid GetUserId(string? token)
+    {
+         var userId = ValidateJwtToken(token);
+         if (userId is null)
+         {
+             throw new NullReferenceException();
+         }
+
+         return (Guid)userId;
     }
 }
