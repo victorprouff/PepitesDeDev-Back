@@ -47,7 +47,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
         await connection.ExecuteAsync(sql, new { Id = id }, commandTimeout: 1);
     }
 
-    public async Task<IEnumerable<Nugget>> Get(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Nugget>> GetAll(CancellationToken cancellationToken = default)
     {
         var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets;";
 
@@ -59,6 +59,19 @@ public class NuggetRepository : BaseRepository, INuggetRepository
         return nuggets.Select(n => (Nugget)n);
     }
 
+    public async Task<IEnumerable<Nugget>> GetAllByUserId(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets WHERE user_id = @UserId;";
+
+        await using var connexion = GetConnection();
+        var nuggets = await connexion.QueryAsync<NuggetEntity>(
+            sql,
+            new { UserId = userId },
+            commandTimeout: 1);
+
+        return nuggets.Select(n => (Nugget)n);
+    }
+    
     public async Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken = default)
     {
         var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets WHERE id = @Id";

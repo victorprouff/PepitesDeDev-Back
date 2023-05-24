@@ -49,7 +49,9 @@ public class NuggetDomain : INuggetDomain
 
     public async Task<Nugget?> GetAsync(Guid id) => await _repository.GetById(id);
 
-    public async Task<IEnumerable<Nugget>> GetAsync() => await _repository.Get();
+    public async Task<IEnumerable<Nugget>> GetAllAsync() => await _repository.GetAll();
+    
+    public async Task<IEnumerable<Nugget>> GetAllByUserIdAsync(Guid userId) => await _repository.GetAllByUserId(userId);
     
     public async Task DeleteAsync(Guid id, Guid userId)
     {

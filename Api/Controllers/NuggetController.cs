@@ -24,7 +24,7 @@ public class NuggetController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetList()
     {
-        var nuggets = await _nuggetDomain.GetAsync();
+        var nuggets = await _nuggetDomain.GetAllAsync();
 
         return Ok(nuggets.Select(n => (GetNuggetResponse)n));
     }
@@ -40,6 +40,14 @@ public class NuggetController : ControllerBase
         }
 
         return Ok((GetNuggetResponse)nugget);
+    }
+    
+    [HttpGet("user")]
+    public async Task<IActionResult> GetListByUserId()
+    {
+        var nuggets = await _nuggetDomain.GetAllByUserIdAsync(GetUserId());
+
+        return Ok(nuggets.Select(n => (GetNuggetResponse)n));
     }
 
     [HttpPost]
