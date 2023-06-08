@@ -49,7 +49,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
 
     public async Task<IEnumerable<Nugget>> GetAll(CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets;";
+        var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets ORDER BY created_at DESC;";
 
         await using var connexion = GetConnection();
         var nuggets = await connexion.QueryAsync<NuggetEntity>(
