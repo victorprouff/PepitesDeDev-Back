@@ -7,5 +7,5 @@ public record GetUserByIdQueryResponse(Guid Id, string Email, Instant CreatedAt,
     public static explicit operator GetUserByIdQueryResponse?(User? user) =>
         user is null
             ? null
-            : new GetUserByIdQueryResponse(user.Id, user.Email, user.CreatedAt, user.UpdatedAt);
+            : new GetUserByIdQueryResponse(user.Id, user.Email.Value, user.CreatedAt, user.UpdatedAt);
 }

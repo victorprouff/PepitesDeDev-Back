@@ -25,7 +25,7 @@ public class UserController : ControllerBase
         var response = await _userDomain.Authenticate(request.Email, request.Password);
         if (response is null)
         {
-            return BadRequest(new { message = "Username or password is incorrect" });
+            return BadRequest(new { message = "Email or password is incorrect" });
         }
         
         return Ok((AuthenticateUserResponse)response);
@@ -35,7 +35,7 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateUserRequest request)
     {
-        var userId = await _userDomain.CreateAsync(new CreateUserCommand(request.Email, request.Password));
+        var userId = await _userDomain.CreateAsync(new CreateUserCommand(new Email(request.Email), request.Password));
         return Ok(userId);
     }
 

@@ -29,8 +29,8 @@ public class UserEntity
     public static explicit operator User?(UserEntity? user) =>
         user is null
             ? null
-            : new User(user.Id, user.Email, user.Password, user.Salt, user.CreatedAt, user.UpdatedAt);
+            : new User(user.Id, new Email(user.Email), user.Password, user.Salt, user.CreatedAt, user.UpdatedAt);
 
     public static explicit operator UserEntity(User user) =>
-        new(user.Id, user.Email, user.Password, user.Salt,  user.CreatedAt, user.UpdatedAt);
+        new(user.Id, user.Email.Value, user.Password, user.Salt,  user.CreatedAt, user.UpdatedAt);
 }
