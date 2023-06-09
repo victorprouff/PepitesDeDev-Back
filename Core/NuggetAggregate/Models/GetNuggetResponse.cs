@@ -1,7 +1,6 @@
-using Core.NuggetAggregate;
 using NodaTime;
 
-namespace Api.Models.Nuggets;
+namespace Core.NuggetAggregate.Models;
 
 public record GetNuggetResponse(Guid Id, string Title, string Content, Guid UserId, Instant CreatedAt, Instant? UpdatedAt)
 {

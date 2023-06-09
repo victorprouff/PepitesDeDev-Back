@@ -47,29 +47,42 @@ public class NuggetRepository : BaseRepository, INuggetRepository
         await connection.ExecuteAsync(sql, new { Id = id }, commandTimeout: 1);
     }
 
-    public async Task<IEnumerable<Nugget>> GetAll(CancellationToken cancellationToken = default)
+    public async Task<(int, IEnumerable<Nugget>)> GetAll(int limit, int offset, CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets ORDER BY created_at DESC;";
+        var sql = @"
+            SELECT count(*) FROM nuggets;
+            SELECT id, title, content, user_id, created_at, updated_at FROM nuggets ORDER BY created_at DESC LIMIT @Limit OFFSET @Offset;";
 
         await using var connexion = GetConnection();
-        var nuggets = await connexion.QueryAsync<NuggetEntity>(
-            sql,
-            commandTimeout: 1);
-
-        return nuggets.Select(n => (Nugget)n);
+        using (var multi = await connexion.QueryMultipleAsync(
+                   sql,
+                   new { limit, offset },
+                   commandTimeout: 1))
+        {
+            var nbOfNuggets = multi.Read<int>().Single();
+            var nuggets = await multi.ReadAsync<NuggetEntity>();
+            
+            return (nbOfNuggets, nuggets.Select(n => (Nugget)n));
+        }
     }
 
-    public async Task<IEnumerable<Nugget>> GetAllByUserId(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<(int, IEnumerable<Nugget>)> GetAllByUserId(Guid userId, int limit, int offset, CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets WHERE user_id = @UserId;";
+        var sql = @"
+                SELECT count(*) FROM nuggets WHERE user_id = @UserId;
+                SELECT id, title, content, user_id, created_at, updated_at FROM nuggets WHERE user_id = @UserId ORDER BY created_at DESC LIMIT @Limit OFFSET @Offset;";
 
         await using var connexion = GetConnection();
-        var nuggets = await connexion.QueryAsync<NuggetEntity>(
-            sql,
-            new { UserId = userId },
-            commandTimeout: 1);
-
-        return nuggets.Select(n => (Nugget)n);
+        using (var multi = await connexion.QueryMultipleAsync(
+                   sql,
+                   new { UserId = userId, Limit = limit, Offset = offset },
+                   commandTimeout: 1))
+        {
+            var nbOfNuggets = multi.Read<int>().Single();
+            var nuggets = await multi.ReadAsync<NuggetEntity>();
+            
+            return (nbOfNuggets, nuggets.Select(n => (Nugget)n));
+        }
     }
     
     public async Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken = default)

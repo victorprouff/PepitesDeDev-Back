@@ -4,6 +4,7 @@ using Core.NuggetAggregate;
 using Core.NuggetAggregate.Models;
 using Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Nugget = Api.Models.Nuggets.Nugget;
 
 namespace Api.Controllers;
 
@@ -22,11 +23,11 @@ public class NuggetController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetList()
+    public async Task<IActionResult> GetList(int limit, int offset)
     {
-        var nuggets = await _nuggetDomain.GetAllAsync();
-
-        return Ok(nuggets.Select(n => (GetNuggetResponse)n));
+        var response = await _nuggetDomain.GetAllAsync(limit, offset);
+        
+        return Ok(new GetAllNuggetResponse(response.NbOfNuggets, response.Nuggets.Select(n => (Nugget)n)));
     }
 
     [AllowAnonymous]
@@ -43,11 +44,11 @@ public class NuggetController : ControllerBase
     }
     
     [HttpGet("user")]
-    public async Task<IActionResult> GetListByUserId()
+    public async Task<IActionResult> GetListByUserId(int limit, int offset)
     {
-        var nuggets = await _nuggetDomain.GetAllByUserIdAsync(GetUserId());
+        var response = await _nuggetDomain.GetAllByUserIdAsync(GetUserId(), limit, offset);
 
-        return Ok(nuggets.Select(n => (GetNuggetResponse)n));
+        return Ok(new GetAllNuggetResponse(response.NbOfNuggets, response.Nuggets.Select(n => (Nugget)n)));
     }
 
     [HttpPost]

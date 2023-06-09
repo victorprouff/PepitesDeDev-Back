@@ -49,10 +49,18 @@ public class NuggetDomain : INuggetDomain
 
     public async Task<Nugget?> GetAsync(Guid id) => await _repository.GetById(id);
 
-    public async Task<IEnumerable<Nugget>> GetAllAsync() => await _repository.GetAll();
-    
-    public async Task<IEnumerable<Nugget>> GetAllByUserIdAsync(Guid userId) => await _repository.GetAllByUserId(userId);
-    
+    public async Task<GetAllResponse> GetAllAsync(int limit, int offset)
+    {
+        var (nbOfNuggets, nuggets) = await _repository.GetAll(limit, offset);
+        return new GetAllResponse(nbOfNuggets, nuggets);
+    }
+
+    public async Task<GetAllResponse> GetAllByUserIdAsync(Guid userId, int limit, int offset)
+    {
+        var (nbOfNuggets, nuggets) = await _repository.GetAllByUserId(userId, limit, offset);
+        return new GetAllResponse(nbOfNuggets, nuggets);
+    }
+
     public async Task DeleteAsync(Guid id, Guid userId)
     {
         var nugget = await _repository.GetById(id);
