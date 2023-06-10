@@ -23,7 +23,7 @@ public class NuggetController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetList(int limit, int offset)
+    public async Task<IActionResult> GetList(int limit = 10, int offset = 0)
     {
         var response = await _nuggetDomain.GetAllAsync(limit, offset);
         
@@ -44,7 +44,7 @@ public class NuggetController : ControllerBase
     }
     
     [HttpGet("user")]
-    public async Task<IActionResult> GetListByUserId(int limit, int offset)
+    public async Task<IActionResult> GetListByUserId(int limit = 10, int offset = 0)
     {
         var response = await _nuggetDomain.GetAllByUserIdAsync(GetUserId(), limit, offset);
 
