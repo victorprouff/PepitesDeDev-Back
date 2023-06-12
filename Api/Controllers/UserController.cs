@@ -50,7 +50,7 @@ public class UserController : ControllerBase
     [HttpPut("email")]
     public async Task<IActionResult> UpdateEmail(UpdateEmailRequest request, CancellationToken cancellationToken = default)
     {
-        await _userDomain.UpdateEmail(GetUserId(), new Email(request.NewEmail), cancellationToken);
+        await _userDomain.UpdateEmail(GetUserId(), new Email(request.Email), cancellationToken);
 
         return NoContent();
     }

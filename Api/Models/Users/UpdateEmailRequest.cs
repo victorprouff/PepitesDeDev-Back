@@ -1,3 +1,3 @@
 namespace Api.Models.Users;
 
-public record UpdateEmailRequest(string NewEmail);
+public record UpdateEmailRequest(string Email);
