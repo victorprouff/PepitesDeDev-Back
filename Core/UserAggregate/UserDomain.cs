@@ -20,9 +20,9 @@ public class UserDomain : IUserDomain
         _passwordEncryptor = passwordEncryptor;
     }
 
-    public async Task<AuthenticateResponse?> Authenticate(string emailOrUsername, string password)
+    public async Task<AuthenticateResponse?> Authenticate(string emailOrUsername, string password, CancellationToken cancellationToken = default)
     {
-        var user = await _repository.GetByEmailOrUsernameAsync(emailOrUsername);
+        var user = await _repository.GetByEmailOrUsernameAsync(emailOrUsername, cancellationToken);
         if (user is null)
         {
             return null; // Todo: throw exception user notfound ?
@@ -48,6 +48,12 @@ public class UserDomain : IUserDomain
 
         return newUser.Id;
     }
+    
+    public Task UpdateEmail(Guid userId, Email newEmail, CancellationToken cancellationToken = default) =>
+        _repository.UpdateEmail(userId, newEmail.Value, cancellationToken);
+
+    public Task UpdateUsername(Guid userId, string username, CancellationToken cancellationToken = default) =>
+        _repository.UpdateUsername(userId, username, cancellationToken);
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {

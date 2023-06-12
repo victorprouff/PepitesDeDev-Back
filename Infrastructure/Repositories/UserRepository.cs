@@ -51,6 +51,24 @@ public class UserRepository : BaseRepository, IUserRepository
         await connection.ExecuteAsync(sql, (UserEntity)user, commandTimeout: 1);
     }
 
+    public async Task UpdateEmail(Guid userId, string newEmailValue, CancellationToken cancellationToken)
+    {
+        var sql =
+            @"UPDATE users SET email = @Email WHERE id = @Id;";
+
+        await using var connection = GetConnection();
+        await connection.ExecuteAsync(sql, new { id = userId, email = newEmailValue }, commandTimeout: 1);
+    }
+
+    public async Task UpdateUsername(Guid userId, string username, CancellationToken cancellationToken)
+    {
+        var sql =
+            @"UPDATE users SET username = @Username WHERE id = @Id;";
+
+        await using var connection = GetConnection();
+        await connection.ExecuteAsync(sql, new { id = userId, username = username }, commandTimeout: 1);
+    }
+
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var sql =

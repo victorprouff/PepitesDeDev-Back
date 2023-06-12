@@ -1,5 +1,6 @@
 using Api.Authorization;
 using Api.Models.Users;
+using Core.Services.Interfaces;
 using Core.UserAggregate;
 using Core.UserAggregate.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,15 +13,17 @@ namespace Api.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserDomain _userDomain;
-
-    public UserController(IUserDomain userDomain)
+    private readonly IJwtService _jwtService;
+    
+    public UserController(IUserDomain userDomain, IJwtService jwtService)
     {
         _userDomain = userDomain;
+        _jwtService = jwtService;
     }
 
     [AllowAnonymous]
     [HttpPost("authenticate")]
-    public async Task<IActionResult> Authenticate(AuthenticateUserRequest request)
+    public async Task<IActionResult> Authenticate(AuthenticateUserRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _userDomain.Authenticate(request.EmailOrUsername, request.Password);
         if (response is null)
@@ -33,16 +36,37 @@ public class UserController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost]
-    public async Task<IActionResult> Create(CreateUserRequest request)
+    public async Task<IActionResult> Create(CreateUserRequest request, CancellationToken cancellationToken = default)
     {
-        var userId = await _userDomain.CreateAsync(new CreateUserCommand(new Email(request.Email), request.Username, request.Password));
+        var userId = await _userDomain.CreateAsync(
+            new CreateUserCommand(new Email(request.Email),
+                request.Username,
+                request.Password),
+            cancellationToken);
+        
         return Ok(userId);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> Get(Guid id)
+    [HttpPut("email")]
+    public async Task<IActionResult> UpdateEmail(UpdateEmailRequest request, CancellationToken cancellationToken = default)
     {
-        var user = await _userDomain.GetByIdAsync(id);
+        await _userDomain.UpdateEmail(GetUserId(), new Email(request.NewEmail), cancellationToken);
+
+        return NoContent();
+    }
+    
+    [HttpPut("username")]
+    public async Task<IActionResult> UpdateUsername(UpdateUsernameRequest request, CancellationToken cancellationToken = default)
+    {
+        await _userDomain.UpdateUsername(GetUserId(), request.Username, cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken = default)
+    {
+        var user = await _userDomain.GetByIdAsync(id, cancellationToken);
         if (user == null)
         {
             return NotFound();
@@ -51,9 +75,15 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    public IActionResult Delete(Guid id, CancellationToken cancellationToken = default)
     {
-        _userDomain.DeleteAsync(id);
+        _userDomain.DeleteAsync(id, cancellationToken);
         return Ok();
+    }
+    
+    private Guid GetUserId()
+    {
+        var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        return _jwtService.GetUserId(token);
     }
 }
