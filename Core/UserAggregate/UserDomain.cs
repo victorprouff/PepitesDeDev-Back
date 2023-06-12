@@ -67,14 +67,18 @@ public class UserDomain : IUserDomain
             throw new Exception();
         }
 
+        if (oldPassword == newPassword)
+        {
+            throw new Exception();
+        }
+        
         if (_passwordEncryptor.VerifyPassword(oldPassword, user.Salt, user.Password) is false)
         {
             throw new Exception(); // todo: exception password incorrect
         }
         
         var salt = _passwordEncryptor.GenerateSalt();
-        var passwordHash = _passwordEncryptor.GenerateHash(user.Password, salt);
-
+        var passwordHash = _passwordEncryptor.GenerateHash(newPassword, salt);
 
         await _repository.UpdatePassword(userId, salt, passwordHash, cancellationToken);
     }

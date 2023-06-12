@@ -23,7 +23,7 @@ public class UserRepository : BaseRepository, IUserRepository
 
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var sql = @"SELECT id, email, username, created_at, updated_at FROM users WHERE id = @Id";
+        var sql = @"SELECT id, email, username, password, salt, created_at, updated_at FROM users WHERE id = @Id";
 
         await using var connexion = GetConnection();
         return (User?)await connexion.QueryFirstOrDefaultAsync<UserEntity?>(
