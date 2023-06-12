@@ -22,7 +22,7 @@ public class UserController : ControllerBase
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate(AuthenticateUserRequest request)
     {
-        var response = await _userDomain.Authenticate(request.Email, request.Password);
+        var response = await _userDomain.Authenticate(request.EmailOrUsername, request.Password);
         if (response is null)
         {
             return BadRequest(new { message = "Email or password is incorrect" });
@@ -35,7 +35,7 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateUserRequest request)
     {
-        var userId = await _userDomain.CreateAsync(new CreateUserCommand(new Email(request.Email), request.Password));
+        var userId = await _userDomain.CreateAsync(new CreateUserCommand(new Email(request.Email), request.Username, request.Password));
         return Ok(userId);
     }
 

@@ -20,9 +20,9 @@ public class UserDomain : IUserDomain
         _passwordEncryptor = passwordEncryptor;
     }
 
-    public async Task<AuthenticateResponse?> Authenticate(string email, string password)
+    public async Task<AuthenticateResponse?> Authenticate(string emailOrUsername, string password)
     {
-        var user = await _repository.GetByEmailAsync(email);
+        var user = await _repository.GetByEmailOrUsernameAsync(emailOrUsername);
         if (user is null)
         {
             return null; // Todo: throw exception user notfound ?
@@ -35,15 +35,15 @@ public class UserDomain : IUserDomain
         
         var token = _jwtService.GenerateJwtToken(user.Id);
 
-        return new AuthenticateResponse(user.Id, email, token);
+        return new AuthenticateResponse(user.Id, user.Email.Value, user.Username, token);
     }
 
     public async Task<Guid> CreateAsync(CreateUserCommand user, CancellationToken cancellationToken = default)
     {
         var salt = _passwordEncryptor.GenerateSalt();
         var passwordHash = _passwordEncryptor.GenerateHash(user.Password, salt);
-        
-        var newUser = User.Create(user.Email, passwordHash, salt, _clock.GetCurrentInstant());
+
+        var newUser = User.Create(user.Email, user.username, passwordHash, salt, _clock.GetCurrentInstant());
         await _repository.CreateAsync(newUser, cancellationToken);
 
         return newUser.Id;
