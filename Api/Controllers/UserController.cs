@@ -62,6 +62,14 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+    
+    [HttpPut("password")]
+    public async Task<IActionResult> UpdatePassword(UpdatePasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        await _userDomain.UpdatePassword(GetUserId(), request.OldPassword, request.NewPassword, cancellationToken);
+
+        return NoContent();
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken = default)

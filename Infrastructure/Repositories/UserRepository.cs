@@ -11,16 +11,6 @@ public class UserRepository : BaseRepository, IUserRepository
     {
     }
 
-    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
-    {
-        var sql = @"
-                SELECT id, username, email, password, salt, created_at, updated_at FROM users WHERE email = @Email;";
-
-        await using var connexion = GetConnection();
-        return (User?)await connexion.QueryFirstOrDefaultAsync<UserEntity?>(
-            sql, new { email }, commandTimeout: 1);
-    }
-    
     public async Task<User?> GetByEmailOrUsernameAsync(string emailOrUsername, CancellationToken cancellationToken = default)
     {
         var sql = @"
@@ -67,6 +57,15 @@ public class UserRepository : BaseRepository, IUserRepository
 
         await using var connection = GetConnection();
         await connection.ExecuteAsync(sql, new { id = userId, username = username }, commandTimeout: 1);
+    }
+
+    public async Task UpdatePassword(Guid id, string salt, string passwordHash, CancellationToken cancellationToken)
+    {
+        var sql =
+            @"UPDATE users SET salt = @Salt, password = @Password WHERE id = @Id;";
+
+        await using var connection = GetConnection();
+        await connection.ExecuteAsync(sql, new { id, salt, password = passwordHash }, commandTimeout: 1);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)

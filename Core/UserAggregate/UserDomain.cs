@@ -55,6 +55,30 @@ public class UserDomain : IUserDomain
     public Task UpdateUsername(Guid userId, string username, CancellationToken cancellationToken = default) =>
         _repository.UpdateUsername(userId, username, cancellationToken);
 
+    public async Task UpdatePassword(
+        Guid userId,
+        string oldPassword,
+        string newPassword,
+        CancellationToken cancellationToken)
+    {
+        var user = await _repository.GetByIdAsync(userId, cancellationToken);
+        if (user is null)
+        {
+            throw new Exception();
+        }
+
+        if (_passwordEncryptor.VerifyPassword(oldPassword, user.Salt, user.Password) is false)
+        {
+            throw new Exception(); // todo: exception password incorrect
+        }
+        
+        var salt = _passwordEncryptor.GenerateSalt();
+        var passwordHash = _passwordEncryptor.GenerateHash(user.Password, salt);
+
+
+        await _repository.UpdatePassword(userId, salt, passwordHash, cancellationToken);
+    }
+
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await _repository.DeleteAsync(id, cancellationToken);
