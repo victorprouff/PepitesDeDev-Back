@@ -25,7 +25,7 @@ public class UserController : ControllerBase
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate(AuthenticateUserRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await _userDomain.Authenticate(request.EmailOrUsername, request.Password);
+        var response = await _userDomain.Authenticate(request.EmailOrUsername, request.Password, cancellationToken);
         if (response is null)
         {
             return BadRequest(new { message = "Email or password is incorrect" });

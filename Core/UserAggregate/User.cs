@@ -11,6 +11,7 @@ public class User
         Username = username;
         Password = password;
         Salt = salt;
+        IsAdmin = isAdmin;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
     }
