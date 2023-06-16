@@ -26,11 +26,3 @@ public class GetNuggetProjection
     public Instant CreatedAt { get; set; }
     public Instant? UpdatedAt { get; set; }
 }
-// public record GetNuggetProjection(
-//     Guid Id,
-//     Guid UserId,
-//     string Title,
-//     string Content,
-//     string Creator,
-//     Instant CreatedAt,
-//     Instant? UpdatedAt);
