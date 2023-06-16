@@ -11,7 +11,7 @@ namespace Core.Services;
 public class JwtService : IJwtService
 {
     private readonly AppSettings _appSettings;
-    
+
     public JwtService(IOptions<AppSettings> appSettings)
     {
         _appSettings = appSettings.Value;
@@ -19,19 +19,25 @@ public class JwtService : IJwtService
         if (string.IsNullOrEmpty(_appSettings.Secret))
             throw new Exception("JWT secret not configured");
     }
-    
-    public string GenerateJwtToken(Guid userId)
+
+    public string GenerateJwtToken(Guid userId, bool isAdmin)
     {
         // generate token that is valid for 7 days
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret!);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("id", userId.ToString()) }),
+            Subject = new ClaimsIdentity(
+                new[]
+            {
+                new Claim("id", userId.ToString()),
+                new Claim("isAdmin", isAdmin.ToString())
+            }),
             Expires = DateTime.UtcNow.AddDays(7),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials =
+                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
-        
+
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
@@ -72,12 +78,12 @@ public class JwtService : IJwtService
 
     public Guid GetUserId(string? token)
     {
-         var userId = ValidateJwtToken(token);
-         if (userId is null)
-         {
-             throw new NullReferenceException();
-         }
+        var userId = ValidateJwtToken(token);
+        if (userId is null)
+        {
+            throw new NullReferenceException();
+        }
 
-         return (Guid)userId;
+        return (Guid)userId;
     }
 }
