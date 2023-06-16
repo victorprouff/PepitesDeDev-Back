@@ -1,7 +1,8 @@
 using Core.Interfaces;
-using Core.NuggetAggregate;
+using Core.NuggetAggregate.Projections;
 using Dapper;
 using Infrastructure.Entities;
+using Nugget = Core.NuggetAggregate.Nugget;
 
 namespace Infrastructure.Repositories;
 
@@ -45,11 +46,15 @@ public class NuggetRepository : BaseRepository, INuggetRepository
         await connection.ExecuteAsync(sql, new { Id = id }, commandTimeout: 1);
     }
 
-    public async Task<(int, IEnumerable<Nugget>)> GetAll(int limit, int offset, CancellationToken cancellationToken)
+    public async Task<GetAllNuggetsProjection> GetAll(int limit, int offset, CancellationToken cancellationToken)
     {
         const string sql = @"
             SELECT count(*) FROM nuggets;
-            SELECT id, title, content, user_id, created_at, updated_at FROM nuggets ORDER BY created_at DESC LIMIT @Limit OFFSET @Offset;";
+            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            FROM nuggets n
+                LEFT OUTER JOIN users u on n.user_id = u.id
+            ORDER BY created_at
+            DESC LIMIT @Limit OFFSET @Offset;";
 
         await using var connexion = GetConnection();
         using var multi = await connexion.QueryMultipleAsync(
@@ -60,35 +65,59 @@ public class NuggetRepository : BaseRepository, INuggetRepository
         var nbOfNuggets = multi.Read<int>().Single();
         var nuggets = await multi.ReadAsync<NuggetEntity>();
             
-        return (nbOfNuggets, nuggets.Select(n => (Nugget)n));
+        return new GetAllNuggetsProjection(
+            nbOfNuggets,
+            nuggets.Select(n => (Core.NuggetAggregate.Projections.Nugget)n));
     }
 
-    public async Task<(int, IEnumerable<Nugget>)> GetAllByUserId(Guid userId, bool isAdmin, int limit, int offset, CancellationToken cancellationToken)
+    public async Task<GetAllNuggetsProjection> GetAllByUserIdProjection(Guid userId, int limit, int offset, CancellationToken cancellationToken)
     {
         const string sql = @"
-                SELECT count(*) FROM nuggets WHERE @IsAdmin OR user_id = @UserId;
-                SELECT id, title, content, user_id, created_at, updated_at
-                FROM nuggets
-                WHERE @IsAdmin OR user_id = @UserId
-                ORDER BY created_at DESC
-                LIMIT @Limit OFFSET @Offset;";
+            SELECT count(*) FROM nuggets WHERE user_id = @UserId;
+            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            FROM nuggets n
+                LEFT OUTER JOIN users u on n.user_id = u.id
+            WHERE n.user_id = @UserId
+            ORDER BY n.created_at DESC
+            LIMIT @Limit OFFSET @Offset;";
 
         await using var connexion = GetConnection();
         using var multi = await connexion.QueryMultipleAsync(
             sql,
-            new { UserId = userId, IsAdmin = isAdmin, Limit = limit, Offset = offset },
+            new { UserId = userId, Limit = limit, Offset = offset },
             commandTimeout: 1);
         
         var nbOfNuggets = multi.Read<int>().Single();
         var nuggets = await multi.ReadAsync<NuggetEntity>();
             
-        return (nbOfNuggets, nuggets.Select(n => (Nugget)n));
+        return new GetAllNuggetsProjection(
+            nbOfNuggets,
+            nuggets.Select(n => (Core.NuggetAggregate.Projections.Nugget)n));
+    }
+    
+    public async Task<GetNuggetProjection?> GetByIdProjection(Guid id, CancellationToken cancellationToken)
+    {
+        const string sql = @"
+            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            FROM nuggets n
+                LEFT OUTER JOIN users u on n.user_id = u.id
+            WHERE n.id = @Id";
+
+        await using var connexion = GetConnection();
+        return await connexion.QueryFirstOrDefaultAsync<GetNuggetProjection?>(
+            sql,
+            new { Id = id },
+            commandTimeout: 1);
     }
     
     public async Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken)
     {
-        const string sql = @"SELECT id, title, content, user_id, created_at, updated_at FROM nuggets WHERE id = @Id";
-
+        const string sql = @"
+            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            FROM nuggets n
+                LEFT OUTER JOIN users u on n.user_id = u.id
+            WHERE n.id = @Id";
+        
         await using var connexion = GetConnection();
         return (Nugget?)await connexion.QueryFirstOrDefaultAsync<NuggetEntity?>(
             sql,

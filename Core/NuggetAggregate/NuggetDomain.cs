@@ -1,5 +1,6 @@
 using Core.Interfaces;
 using Core.NuggetAggregate.Models;
+using Core.NuggetAggregate.Projections;
 using NodaTime;
 
 namespace Core.NuggetAggregate;
@@ -49,31 +50,22 @@ public class NuggetDomain : INuggetDomain
         await _repository.UpdateAsync(nugget, cancellationToken);
     }
 
-    public async Task<Nugget?> GetAsync(Guid id, CancellationToken cancellationToken) =>
-        await _repository.GetById(id, cancellationToken);
+    public async Task<GetNuggetProjection?> GetAsync(Guid id, CancellationToken cancellationToken) =>
+        await _repository.GetByIdProjection(id, cancellationToken);
 
-    public async Task<GetAllResponse> GetAllAsync(int limit, int offset, CancellationToken cancellationToken)
-    {
-        var (nbOfNuggets, nuggets) = await _repository.GetAll(limit, offset, cancellationToken);
-        return new GetAllResponse(nbOfNuggets, nuggets);
-    }
+    public async Task<GetAllNuggetsProjection> GetAllAsync(int limit, int offset, CancellationToken cancellationToken) =>
+        await _repository.GetAll(limit, offset, cancellationToken);
 
-    public async Task<GetAllResponse> GetAllByUserIdOrAdminAsync(
+    public async Task<GetAllNuggetsProjection> GetAllByUserIdOrAdminAsync(
         Guid userId,
         int limit,
         int offset,
-        CancellationToken cancellationToken)
-    {
-        var isAdmin = await _userRepository.CheckIfIsAdmin(userId, cancellationToken);
-        var (nbOfNuggets, nuggets) = await _repository.GetAllByUserId(
+        CancellationToken cancellationToken) =>
+        await _repository.GetAllByUserIdProjection(
             userId,
-            isAdmin,
             limit,
             offset,
             cancellationToken);
-        
-        return new GetAllResponse(nbOfNuggets, nuggets);
-    }
 
     public async Task DeleteAsync(Guid id, Guid userId, CancellationToken cancellationToken)
     {
