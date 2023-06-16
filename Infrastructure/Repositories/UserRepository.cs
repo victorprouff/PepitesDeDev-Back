@@ -31,7 +31,16 @@ public class UserRepository : BaseRepository, IUserRepository
             new { Id = id },
             commandTimeout: 1);
     }
-    
+
+    public async Task<bool> CheckIfIsAdmin(Guid id, CancellationToken cancellationToken)
+    {
+        var sql = @"
+                SELECT is_admin FROM users WHERE id = @Id;";
+
+        await using var connexion = GetConnection();
+        return await connexion.QueryFirstOrDefaultAsync<bool>(sql, new { id }, commandTimeout: 1);
+    }
+
     public async Task CreateAsync(User user, CancellationToken cancellationToken = default)
     {
         var sql =

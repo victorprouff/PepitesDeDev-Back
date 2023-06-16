@@ -8,14 +8,16 @@ public class NuggetDomain : INuggetDomain
 {
     private readonly IClock _clock;
     private readonly INuggetRepository _repository;
-    
-    public NuggetDomain(IClock clock, INuggetRepository repository)
+    private readonly IUserRepository _userRepository;
+
+    public NuggetDomain(IClock clock, INuggetRepository repository, IUserRepository userRepository)
     {
         _clock = clock;
         _repository = repository;
+        _userRepository = userRepository;
     }
 
-    public async Task<Guid> CreateAsync(CreateNuggetCommand createNuggetCommand)
+    public async Task<Guid> CreateAsync(CreateNuggetCommand createNuggetCommand, CancellationToken cancellationToken)
     {
         var newNugget = Nugget.Create(
             createNuggetCommand.Title,
@@ -23,58 +25,70 @@ public class NuggetDomain : INuggetDomain
             createNuggetCommand.UserId,
             _clock.GetCurrentInstant());
         
-        await _repository.CreateAsync(newNugget);
+        await _repository.CreateAsync(newNugget, cancellationToken);
 
         return newNugget.Id;
     }
 
-    public async Task UpdateAsync(UpdateNuggetCommand createNuggetCommand)
+    public async Task UpdateAsync(UpdateNuggetCommand createNuggetCommand, CancellationToken cancellationToken)
     {
-        var nugget = await _repository.GetById(createNuggetCommand.Id);
+        var nugget = await _repository.GetById(createNuggetCommand.Id, cancellationToken);
         if (nugget is null)
         {
             throw new Exception(); // Todo : NotFount
         }
 
-        if (nugget.UserId != createNuggetCommand.UserId)
+        var userIsAdmin = await _userRepository.CheckIfIsAdmin(createNuggetCommand.UserId, cancellationToken);
+        if (nugget.UserId != createNuggetCommand.UserId && userIsAdmin is false)
         {
             throw new Exception(); // Todo : Nugget ne t'appartient pas
-
         }
         
         nugget.Update(createNuggetCommand.Title, createNuggetCommand.Content, _clock.GetCurrentInstant());
         
-        await _repository.UpdateAsync(nugget);
+        await _repository.UpdateAsync(nugget, cancellationToken);
     }
 
-    public async Task<Nugget?> GetAsync(Guid id) => await _repository.GetById(id);
+    public async Task<Nugget?> GetAsync(Guid id, CancellationToken cancellationToken) =>
+        await _repository.GetById(id, cancellationToken);
 
-    public async Task<GetAllResponse> GetAllAsync(int limit, int offset)
+    public async Task<GetAllResponse> GetAllAsync(int limit, int offset, CancellationToken cancellationToken)
     {
-        var (nbOfNuggets, nuggets) = await _repository.GetAll(limit, offset);
+        var (nbOfNuggets, nuggets) = await _repository.GetAll(limit, offset, cancellationToken);
         return new GetAllResponse(nbOfNuggets, nuggets);
     }
 
-    public async Task<GetAllResponse> GetAllByUserIdAsync(Guid userId, int limit, int offset)
+    public async Task<GetAllResponse> GetAllByUserIdOrAdminAsync(
+        Guid userId,
+        int limit,
+        int offset,
+        CancellationToken cancellationToken)
     {
-        var (nbOfNuggets, nuggets) = await _repository.GetAllByUserId(userId, limit, offset);
+        var isAdmin = await _userRepository.CheckIfIsAdmin(userId, cancellationToken);
+        var (nbOfNuggets, nuggets) = await _repository.GetAllByUserId(
+            userId,
+            isAdmin,
+            limit,
+            offset,
+            cancellationToken);
+        
         return new GetAllResponse(nbOfNuggets, nuggets);
     }
 
-    public async Task DeleteAsync(Guid id, Guid userId)
+    public async Task DeleteAsync(Guid id, Guid userId, CancellationToken cancellationToken)
     {
-        var nugget = await _repository.GetById(id);
+        var nugget = await _repository.GetById(id, cancellationToken);
         if (nugget is null)
         {
             throw new Exception(); // Todo : NotFount
         }
         
-        if (nugget.UserId != userId)
+        var userIsAdmin = await _userRepository.CheckIfIsAdmin(userId, cancellationToken);
+        if (nugget.UserId != userId && userIsAdmin is false)
         {
             throw new Exception(); // Todo : Nugget ne t'appartient pas
-
         }
         
-        await _repository.Delete(id);
+        await _repository.Delete(id, cancellationToken);
     }
 }
