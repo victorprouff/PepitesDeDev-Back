@@ -15,7 +15,7 @@ public static class ApplicationExtensions
     {
         services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
 
-        services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
+        services.Configure<AppSettings>(configuration.GetSection("AppSettings_Secret"));
 
         services.AddTransient<INuggetRepository, NuggetRepository>(_ =>
             new NuggetRepository(configuration.GetConnectionString("POSTGRESQL_ADDON_URI")));
