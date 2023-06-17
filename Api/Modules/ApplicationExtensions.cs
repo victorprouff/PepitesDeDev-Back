@@ -18,9 +18,9 @@ public static class ApplicationExtensions
         services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
 
         services.AddTransient<INuggetRepository, NuggetRepository>(_ =>
-            new NuggetRepository(configuration.GetConnectionString("PepitesDatabase")));
+            new NuggetRepository(configuration.GetConnectionString("POSTGRESQL_ADDON_URI")));
         services.AddTransient<IUserRepository, UserRepository>(_ =>
-            new UserRepository(configuration.GetConnectionString("PepitesDatabase")));
+            new UserRepository(configuration.GetConnectionString("POSTGRESQL_ADDON_URI")));
         
         services.AddTransient<IPasswordEncryptor, PasswordEncryptor>();
         
