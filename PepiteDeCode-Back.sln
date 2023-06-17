@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{94535D1D-EA54-4AA6-8881-007E862394F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbMigration", "DbMigration\DbMigration.csproj", "{7FEF9D4D-E65D-4074-A37A-A29F910D5617}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{B6A8B839-41D8-4D94-BEB0-3BBE59FDA5FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{DB32EFC2-3C8D-458D-80CE-3F62D2FAFE76}"
@@ -18,10 +16,6 @@ Global
 		{94535D1D-EA54-4AA6-8881-007E862394F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94535D1D-EA54-4AA6-8881-007E862394F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94535D1D-EA54-4AA6-8881-007E862394F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7FEF9D4D-E65D-4074-A37A-A29F910D5617}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7FEF9D4D-E65D-4074-A37A-A29F910D5617}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7FEF9D4D-E65D-4074-A37A-A29F910D5617}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7FEF9D4D-E65D-4074-A37A-A29F910D5617}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B6A8B839-41D8-4D94-BEB0-3BBE59FDA5FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B6A8B839-41D8-4D94-BEB0-3BBE59FDA5FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6A8B839-41D8-4D94-BEB0-3BBE59FDA5FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
