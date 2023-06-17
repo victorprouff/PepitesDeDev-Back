@@ -10,21 +10,23 @@ namespace Core.Services;
 
 public class JwtService : IJwtService
 {
-    private readonly AppSettings _appSettings;
-
-    public JwtService(IOptions<AppSettings> appSettings)
+    private readonly string _secret;
+    
+    public JwtService(string secret)
     {
-        _appSettings = appSettings.Value;
+        _secret = secret;
 
-        if (string.IsNullOrEmpty(_appSettings.Secret))
+        if (string.IsNullOrEmpty(_secret))
+        {
             throw new Exception("JWT secret not configured");
+        }
     }
 
     public string GenerateJwtToken(Guid userId, bool isAdmin)
     {
         // generate token that is valid for 7 days
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_appSettings.Secret!);
+        var key = Encoding.ASCII.GetBytes(_secret);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(
@@ -50,7 +52,7 @@ public class JwtService : IJwtService
         }
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_appSettings.Secret!);
+        var key = Encoding.ASCII.GetBytes(_secret);
         try
         {
             tokenHandler.ValidateToken(token, new TokenValidationParameters

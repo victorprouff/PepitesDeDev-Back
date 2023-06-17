@@ -12,7 +12,7 @@ public static class PersistenceExtensions
         NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
         DefaultTypeMap.MatchNamesWithUnderscores = true;
 
-        services.AddTransient<IDbConnection>(_ => new NpgsqlConnection(configuration.GetConnectionString("POSTGRESQL_ADDON_URI")));
+        services.AddTransient<IDbConnection>(_ => new NpgsqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__PepitesDatabase")));
 
         SqlMapper.AddTypeHandler(new InstantHandler());
 

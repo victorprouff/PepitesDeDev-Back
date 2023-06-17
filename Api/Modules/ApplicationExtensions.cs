@@ -15,19 +15,20 @@ public static class ApplicationExtensions
     {
         services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
 
-        services.Configure<AppSettings>(configuration.GetSection("AppSettings_Secret"));
+        services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
 
         services.AddTransient<INuggetRepository, NuggetRepository>(_ =>
-            new NuggetRepository(configuration.GetConnectionString("POSTGRESQL_ADDON_URI")));
+            new NuggetRepository(Environment.GetEnvironmentVariable("ConnectionStrings__PepitesDatabase")));
         services.AddTransient<IUserRepository, UserRepository>(_ =>
-            new UserRepository(configuration.GetConnectionString("POSTGRESQL_ADDON_URI")));
+            new UserRepository(Environment.GetEnvironmentVariable("ConnectionStrings__PepitesDatabase")));
         
         services.AddTransient<IPasswordEncryptor, PasswordEncryptor>();
         
         services.AddTransient<INuggetDomain, NuggetDomain>();
         services.AddTransient<IUserDomain, UserDomain>();
 
-        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IJwtService, JwtService>(_ =>
+            new JwtService(Environment.GetEnvironmentVariable("AppSettings__Secret")));
         
         return services;
     }
