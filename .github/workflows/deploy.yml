@@ -20,8 +20,8 @@ jobs:
           ConnectionStrings__PepitesDatabase: ${{secrets.ConnectionStrings__PepitesDatabase}}
       - name: Install dependencies
         run: dotnet restore
-      - name: Build
-        run: dotnet build ./DbMigration/DbMigration.csproj Release
+#      - name: Build
+#        run: dotnet build ./DbMigration/DbMigration.csproj Release
       - name: Run
         run: dotnet publish ./DbMigration/DbMigration.csproj -c Release -o out
       - name: Run
