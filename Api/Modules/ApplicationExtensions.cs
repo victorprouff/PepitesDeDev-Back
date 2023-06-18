@@ -27,9 +27,8 @@ public static class ApplicationExtensions
         services.AddTransient<INuggetDomain, NuggetDomain>();
         services.AddTransient<IUserDomain, UserDomain>();
 
-        services.AddScoped<IJwtService, JwtService>(_ =>
-            new JwtService(Environment.GetEnvironmentVariable("AppSettings__Secret")));
-        
+        services.AddScoped<IJwtService, JwtService>();
+
         return services;
     }
 }
