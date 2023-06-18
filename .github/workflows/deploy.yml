@@ -25,6 +25,3 @@ jobs:
           ConnectionStrings__PepitesDatabase: ${{secrets.CONNECTIONSTRINGS__PEPITESDATABASE}}
         working-directory: ./out
         run: dotnet DbMigration.dll
-        
-        #dotnet publish ./src/Effy.CustomerReferential.DbMigration/Effy.CustomerReferential.DbMigration.csproj --no-restore -c Release -o out
-
