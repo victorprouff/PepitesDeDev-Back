@@ -12,7 +12,7 @@ public static class PersistenceExtensions
         NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
         DefaultTypeMap.MatchNamesWithUnderscores = true;
 
-        services.AddTransient<IDbConnection>(_ => new NpgsqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__PepitesDatabase")));
+        services.AddTransient<IDbConnection>(_ => new NpgsqlConnection(configuration.GetConnectionString("PepitesDatabase")));
 
         SqlMapper.AddTypeHandler(new InstantHandler());
 

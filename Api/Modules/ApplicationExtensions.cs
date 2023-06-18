@@ -18,10 +18,10 @@ public static class ApplicationExtensions
         services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
 
         services.AddTransient<INuggetRepository, NuggetRepository>(_ =>
-            new NuggetRepository(Environment.GetEnvironmentVariable("ConnectionStrings__PepitesDatabase")));
+            new NuggetRepository(configuration.GetConnectionString("PepitesDatabase")));
         services.AddTransient<IUserRepository, UserRepository>(_ =>
-            new UserRepository(Environment.GetEnvironmentVariable("ConnectionStrings__PepitesDatabase")));
-        
+            new UserRepository(configuration.GetConnectionString("PepitesDatabase")));
+
         services.AddTransient<IPasswordEncryptor, PasswordEncryptor>();
         
         services.AddTransient<INuggetDomain, NuggetDomain>();
