@@ -17,7 +17,7 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
         env:
-          ConnectionStrings__PepitesDatabase: ${{secrets.ConnectionStrings__PepitesDatabase}}
+          ConnectionStrings__PepitesDatabase: ${{secrets.CONNECTIONSTRINGS__PEPITESDATABASE}}
       - name: Install dependencies
         run: dotnet restore
 #      - name: Build
