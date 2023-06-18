@@ -12,8 +12,8 @@ var serviceProvider = new ServiceCollection()
             .For.Migrations())
     .AddLogging(lb => lb.AddFluentMigratorConsole())
     .BuildServiceProvider(false);
-using (var scope = serviceProvider.CreateScope())
-{
-    var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-    runner.MigrateUp();
-}
+
+using var scope = serviceProvider.CreateScope();
+var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+
+runner.MigrateUp();
