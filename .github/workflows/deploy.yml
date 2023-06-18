@@ -19,12 +19,18 @@ jobs:
         env:
           ConnectionStrings__PepitesDatabase: ${{secrets.CONNECTIONSTRINGS__PEPITESDATABASE}}
       - name: Install dependencies
+        env:
+          ConnectionStrings__PepitesDatabase: ${{secrets.CONNECTIONSTRINGS__PEPITESDATABASE}}
         run: dotnet restore
 #      - name: Build
 #        run: dotnet build ./DbMigration/DbMigration.csproj Release
       - name: Run
+        env:
+          ConnectionStrings__PepitesDatabase: ${{secrets.CONNECTIONSTRINGS__PEPITESDATABASE}}
         run: dotnet publish ./DbMigration/DbMigration.csproj -c Release -o out
       - name: Run
+        env:
+          ConnectionStrings__PepitesDatabase: ${{secrets.CONNECTIONSTRINGS__PEPITESDATABASE}}
         working-directory: ./out
         run: dotnet DbMigration.dll
         
