@@ -3,12 +3,14 @@ using Api.Models.Users;
 using Core.Services.Interfaces;
 using Core.UserAggregate;
 using Core.UserAggregate.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
 [ApiController]
 [Authorize]
+[DisableCors]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
