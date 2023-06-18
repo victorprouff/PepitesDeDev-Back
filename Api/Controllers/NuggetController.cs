@@ -3,14 +3,12 @@ using Api.Models.Nuggets;
 using Core.NuggetAggregate;
 using Core.NuggetAggregate.Models;
 using Core.Services.Interfaces;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Nugget = Api.Models.Nuggets.Nugget;
 
 namespace Api.Controllers;
 
 [ApiController]
-[EnableCors]
 [Route("api/[controller]")]
 public class NuggetController : ControllerBase
 {

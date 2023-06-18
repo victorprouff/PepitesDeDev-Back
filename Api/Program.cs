@@ -15,15 +15,13 @@ builder.Services.AddControllers()
             o.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
             // o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost",
-                    "*")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+            policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
         });
 });
 
