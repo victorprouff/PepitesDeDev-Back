@@ -3,7 +3,7 @@ using Api.Modules;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 
-var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+const string allowSpecificOrigin = "AllowSpecificOrigin";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +18,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(MyAllowSpecificOrigins,
+    options.AddPolicy(allowSpecificOrigin,
         policy =>
         {
             policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
@@ -34,13 +34,16 @@ builder.Services.AddEndpointsApiExplorer()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
 
-app.UseCors(MyAllowSpecificOrigins);
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseCors(allowSpecificOrigin);
 
 app.UseHttpsRedirection();
 
