@@ -21,5 +21,7 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Build
+        run: dotnet build DbMigration --configuration Release
+      - name: Run
         run: ./DbMigration/bin/Release/net6.0/publish/DbMigration --configuration Release
 
