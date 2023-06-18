@@ -10,7 +10,7 @@ namespace Api.Controllers;
 
 [ApiController]
 [Authorize]
-[DisableCors]
+[EnableCors]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {

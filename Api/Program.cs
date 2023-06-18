@@ -3,6 +3,8 @@ using Api.Modules;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 
+var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,6 +15,17 @@ builder.Services.AddControllers()
             o.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
             // o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost",
+                    "*")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer()
@@ -28,6 +41,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 

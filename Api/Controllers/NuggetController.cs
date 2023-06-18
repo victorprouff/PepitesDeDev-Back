@@ -10,7 +10,7 @@ using Nugget = Api.Models.Nuggets.Nugget;
 namespace Api.Controllers;
 
 [ApiController]
-[DisableCors]
+[EnableCors]
 [Route("api/[controller]")]
 public class NuggetController : ControllerBase
 {
