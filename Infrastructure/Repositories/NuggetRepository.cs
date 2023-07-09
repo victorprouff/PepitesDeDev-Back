@@ -38,6 +38,22 @@ public class NuggetRepository : BaseRepository, INuggetRepository
             commandTimeout: 1);
     }
 
+    public async Task UpdateUrlImageAsync(Nugget nugget, CancellationToken cancellationToken)
+    {
+        await using var connection = GetConnection();
+        const string sql = @"UPDATE nuggets SET url_image = @UrlImage, updated_at = @UpdatedAt WHERE id = @Id;";
+
+        await connection.ExecuteAsync(
+            sql,
+            new
+            {
+                nugget.Id,
+                nugget.UrlImage,
+                nugget.UpdatedAt
+            },
+            commandTimeout: 1);
+    }
+
     public async Task Delete(Guid id, CancellationToken cancellationToken)
     {
         const string sql = @"DELETE FROM nuggets WHERE id = @Id;";

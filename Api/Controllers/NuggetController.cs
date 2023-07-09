@@ -9,6 +9,7 @@ using Nugget = Api.Models.Nuggets.Nugget;
 namespace Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class NuggetController : ControllerBase
 {

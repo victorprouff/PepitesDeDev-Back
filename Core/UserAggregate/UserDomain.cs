@@ -22,8 +22,9 @@ public class UserDomain : IUserDomain
         _passwordEncryptor = passwordEncryptor;
     }
 
-    public async Task<AuthenticateResponse> Authenticate(string emailOrUsername, string password,
-        CancellationToken cancellationToken = default)
+    public async Task<AuthenticateResponse> Authenticate(
+        string emailOrUsername,
+        string password, CancellationToken cancellationToken = default)
     {
         var user = await _repository.GetByEmailOrUsernameAsync(emailOrUsername, cancellationToken);
         if (user is null)
@@ -33,7 +34,7 @@ public class UserDomain : IUserDomain
 
         if (_passwordEncryptor.VerifyPassword(password, user.Salt, user.Password) is false)
         {
-            throw new BadPasswordException("The password is not correct");
+            throw new BadPasswordException("The password is not correct.");
         }
         
         var token = _jwtService.GenerateJwtToken(user.Id, user.IsAdmin);
@@ -77,7 +78,7 @@ public class UserDomain : IUserDomain
         
         if (_passwordEncryptor.VerifyPassword(oldPassword, user.Salt, user.Password) is false)
         {
-            throw new BadPasswordException("The password is not correct");
+            throw new BadPasswordException("The password is not correct.");
         }
         
         var salt = _passwordEncryptor.GenerateSalt();

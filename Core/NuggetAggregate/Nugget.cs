@@ -19,6 +19,7 @@ public class Nugget
 
     public string Title { get; private set; }
     public string Content { get; private set; }
+    public string? UrlImage { get; private set; }
     public Instant CreatedAt { get; private set; }
     public Instant? UpdatedAt { get; private set; }
     
@@ -38,5 +39,11 @@ public class Nugget
             Content = content;
             UpdatedAt = updatedAt;
         }
+    }
+
+    public void UpdateUrlImage(string? urlImage, Instant updatedAt)
+    {
+        UrlImage = urlImage;
+        UpdatedAt = updatedAt;
     }
 }
