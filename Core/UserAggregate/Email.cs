@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Core.UserAggregate.Exceptions;
 
 namespace Core.UserAggregate;
 
@@ -11,14 +12,14 @@ public class Email
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new Exception("Value should not be empty or null");
+            throw new EmailValueIsNullOrEmptyException("Value should not be empty or null.");
         }
         
         var emailToLower = value.ToLower(CultureInfo.CurrentCulture);
         
         if (!Regex.IsMatch(emailToLower, EmailRegexPattern))
         {
-            throw new Exception("The format of the email is not correct");
+            throw new BadEmailFormatException("The format of the email is not correct.");
         }
 
         Value = value;

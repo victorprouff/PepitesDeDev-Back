@@ -26,11 +26,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Authenticate(AuthenticateUserRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _userDomain.Authenticate(request.EmailOrUsername, request.Password, cancellationToken);
-        if (response is null)
-        {
-            return BadRequest(new { message = "Email or password is incorrect" });
-        }
-        
+
         return Ok((AuthenticateUserResponse)response);
     }
 
@@ -75,10 +71,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken = default)
     {
         var user = await _userDomain.GetByIdAsync(id, cancellationToken);
-        if (user == null)
-        {
-            return NotFound();
-        }
+
         return Ok((GetUserResponse)user);
     }
 

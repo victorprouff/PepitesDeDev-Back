@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Core.Models.Authentification;
+using Core.Services.Exceptions;
 using Core.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -17,7 +18,9 @@ public class JwtService : IJwtService
         _appSettings = appSettings.Value;
 
         if (string.IsNullOrEmpty(_appSettings.Secret))
-            throw new Exception("JWT secret not configured");
+        {
+            throw new JwtSecretNotConfiguredException("JWT secret not configured");
+        }
     }
 
     public string GenerateJwtToken(Guid userId, bool isAdmin)

@@ -35,10 +35,6 @@ public class NuggetController : ControllerBase
     public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
     {
         var nugget = await _nuggetDomain.GetAsync(id, cancellationToken);
-        if (nugget == null)
-        {
-            return NotFound();
-        }
 
         return Ok((GetNuggetResponse)nugget);
     }

@@ -1,5 +1,7 @@
+using Core.Exceptions;
 using Core.Interfaces;
 using Core.Services.Interfaces;
+using Core.UserAggregate.Exceptions;
 using Core.UserAggregate.Models;
 using NodaTime;
 
@@ -20,17 +22,18 @@ public class UserDomain : IUserDomain
         _passwordEncryptor = passwordEncryptor;
     }
 
-    public async Task<AuthenticateResponse?> Authenticate(string emailOrUsername, string password, CancellationToken cancellationToken = default)
+    public async Task<AuthenticateResponse> Authenticate(string emailOrUsername, string password,
+        CancellationToken cancellationToken = default)
     {
         var user = await _repository.GetByEmailOrUsernameAsync(emailOrUsername, cancellationToken);
         if (user is null)
         {
-            return null; // Todo: throw exception user notfound ?
+            throw new NotFoundException($"The user with email or username {emailOrUsername} was not found.");
         }
 
         if (_passwordEncryptor.VerifyPassword(password, user.Salt, user.Password) is false)
         {
-            throw new Exception(); // todo: exception password incorrect
+            throw new BadPasswordException("The password is not correct");
         }
         
         var token = _jwtService.GenerateJwtToken(user.Id, user.IsAdmin);
@@ -64,17 +67,17 @@ public class UserDomain : IUserDomain
         var user = await _repository.GetByIdAsync(userId, cancellationToken);
         if (user is null)
         {
-            throw new Exception();
+            throw new NotFoundException($"The user with id {userId} was not found.");
         }
 
         if (oldPassword == newPassword)
         {
-            throw new Exception();
+            throw new BadPasswordException("The old password and the new password are identical. Please choose a different password.");
         }
         
         if (_passwordEncryptor.VerifyPassword(oldPassword, user.Salt, user.Password) is false)
         {
-            throw new Exception(); // todo: exception password incorrect
+            throw new BadPasswordException("The password is not correct");
         }
         
         var salt = _passwordEncryptor.GenerateSalt();
@@ -88,6 +91,11 @@ public class UserDomain : IUserDomain
         await _repository.DeleteAsync(id, cancellationToken);
     }
 
-    public async Task<GetUserByIdQueryResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        (GetUserByIdQueryResponse?)await _repository.GetByIdAsync(id, cancellationToken);
+    public async Task<GetUserByIdQueryResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var user = await _repository.GetByIdAsync(id, cancellationToken)
+            ?? throw new NotFoundException($"The user with id {id} was not found.");
+        
+        return (GetUserByIdQueryResponse)user;
+    }
 }
