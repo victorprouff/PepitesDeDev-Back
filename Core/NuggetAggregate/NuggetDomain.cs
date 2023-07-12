@@ -76,7 +76,7 @@ public class NuggetDomain : INuggetDomain
         var fileName = command.FileName ?? Guid.NewGuid().ToString();
         var fullPath = Path.Combine($"https://{BucketName}.{_cleverCloudHost}/", fileName);
 
-        await _fileStorage.UploadFileAsync(BucketName, fileName, command.Stream);
+        await _fileStorage.UploadFileAsync(BucketName, fileName, command.Stream, cancellationToken);
 
         nugget.UpdateUrlImage(fullPath, _clock.GetCurrentInstant());
 
@@ -116,6 +116,11 @@ public class NuggetDomain : INuggetDomain
                 $"The nugget with id {id} doesn't belong to the user with id {userId}.");
         }
 
+        if (nugget.UrlImage is not null)
+        {
+            await _fileStorage.DeleteFileAsync(BucketName, Path.GetFileName(nugget.UrlImage), cancellationToken);
+        }
+        
         await _repository.Delete(id, cancellationToken);
     }
 }

@@ -4,11 +4,12 @@ namespace Core.NuggetAggregate;
 
 public class Nugget
 {
-    public Nugget(Guid id, string title, string content, Guid userId, Instant createdAt, Instant? updatedAt)
+    public Nugget(Guid id, string title, string content, string? urlImage, Guid userId, Instant createdAt, Instant? updatedAt)
     {
         Id = id;
         Title = title;
         Content = content;
+        UrlImage = urlImage;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
         UserId = userId;
@@ -24,7 +25,7 @@ public class Nugget
     public Instant? UpdatedAt { get; private set; }
     
     public static Nugget Create(string title, string content, Guid userId, Instant createdAt) =>
-        new(Guid.NewGuid(), title, content, userId, createdAt, null);
+        new(Guid.NewGuid(), title, content, null, userId, createdAt, null);
     
     public void Update(string? title, string? content, Instant updatedAt)
     {

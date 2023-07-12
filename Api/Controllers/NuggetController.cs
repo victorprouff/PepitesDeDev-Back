@@ -53,6 +53,18 @@ public class NuggetController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateNuggetRequest nugget, CancellationToken cancellationToken)
     {
+        // var formCollection = await Request.ReadFormAsync(cancellationToken);
+        // var file = formCollection.Files[0];
+        //
+        // if (file.Length > 0)
+        // {
+        //     var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName?.Trim('"');
+        //
+        //     using var stream = new MemoryStream();
+        //     await file.CopyToAsync(stream, cancellationToken);
+        //     
+        // }
+
         var nuggetId = await _nuggetDomain.CreateAsync(
             new CreateNuggetCommand(nugget.Title, nugget.Content, GetUserId()), cancellationToken);
 

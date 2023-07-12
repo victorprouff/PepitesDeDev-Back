@@ -36,7 +36,7 @@ public static class ApplicationExtensions
         
         services.AddTransient<IUserDomain, UserDomain>();
 
-        services.AddScoped<IAmazonS3, AmazonS3Client>(_ => new AmazonS3Client(
+        services.AddSingleton<IAmazonS3, AmazonS3Client>(_ => new AmazonS3Client(
             configuration.GetValue<string>("CleverCloud:AccessKeyId"),
             configuration.GetValue<string>("CleverCloud:SecretAccessKey"),
             new AmazonS3Config

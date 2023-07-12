@@ -50,6 +50,7 @@ public class NuggetEntity
                 nugget.Id,
                 nugget.Title,
                 nugget.Content,
+                nugget.UrlImage,
                 nugget.UserId,
                 nugget.CreatedAt,
                 nugget.UpdatedAt);
