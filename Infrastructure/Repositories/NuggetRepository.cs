@@ -66,7 +66,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     {
         const string sql = @"
             SELECT count(*) FROM nuggets;
-            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.url_image, n.user_id, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             ORDER BY created_at
@@ -90,7 +90,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     {
         const string sql = @"
             SELECT count(*) FROM nuggets WHERE user_id = @UserId;
-            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.user_id = @UserId
@@ -114,7 +114,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task<GetNuggetProjection?> GetByIdProjection(Guid id, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.id = @Id";
@@ -129,7 +129,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.id = @Id";
