@@ -13,12 +13,12 @@ public class FileStorage : IFileStorage
         _client = client;
     }
     
-    public async Task<bool> UploadFileAsync(string bucketName, string objectName, MemoryStream stream)
+    public async Task<bool> UploadFileAsync(string bucketName, string fileName, MemoryStream stream)
     {
         var request = new PutObjectRequest
         {
             BucketName = bucketName,
-            Key = objectName,
+            Key = fileName,
             InputStream = stream,
             CannedACL  = S3CannedACL.PublicRead
         };
@@ -29,7 +29,7 @@ public class FileStorage : IFileStorage
             return true;
         }
 
-        Console.WriteLine($"Could not upload {objectName} to {bucketName}.");
+        Console.WriteLine($"Could not upload {fileName} to {bucketName}.");
         return false;
     }
 }

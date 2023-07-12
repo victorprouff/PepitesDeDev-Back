@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Api.Authorization;
 using Api.Models.Nuggets;
 using Core.NuggetAggregate;
@@ -27,7 +28,7 @@ public class NuggetController : ControllerBase
     public async Task<IActionResult> GetList(CancellationToken cancellationToken, int limit = 10, int offset = 0)
     {
         var response = await _nuggetDomain.GetAllAsync(limit, offset, cancellationToken);
-        
+
         return Ok(new GetAllNuggetResponse(response.NbOfNuggets, response.Nuggets.Select(n => (Nugget)n)));
     }
 
@@ -39,9 +40,10 @@ public class NuggetController : ControllerBase
 
         return Ok((GetNuggetResponse)nugget);
     }
-    
+
     [HttpGet("user")]
-    public async Task<IActionResult> GetListByUserId(CancellationToken cancellationToken, int limit = 10, int offset = 0)
+    public async Task<IActionResult> GetListByUserId(CancellationToken cancellationToken, int limit = 10,
+        int offset = 0)
     {
         var response = await _nuggetDomain.GetAllByUserIdOrAdminAsync(GetUserId(), limit, offset, cancellationToken);
 
@@ -53,7 +55,7 @@ public class NuggetController : ControllerBase
     {
         var nuggetId = await _nuggetDomain.CreateAsync(
             new CreateNuggetCommand(nugget.Title, nugget.Content, GetUserId()), cancellationToken);
-        
+
         return Ok(nuggetId);
     }
 
@@ -65,6 +67,33 @@ public class NuggetController : ControllerBase
             cancellationToken);
 
         return Ok();
+    }
+
+    [HttpPut("{id:guid}/image")]
+    public async Task<IActionResult> UpdateImage(Guid id, CancellationToken cancellationToken)
+    {
+        var formCollection = await Request.ReadFormAsync(cancellationToken);
+        var file = formCollection.Files[0];
+
+        if (file.Length == 0)
+        {
+            return BadRequest();
+        }
+
+        var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName?.Trim('"');
+
+        using var stream = new MemoryStream();
+        await file.CopyToAsync(stream, cancellationToken);
+            
+        var fullPath = await _nuggetDomain.UpdateImageAsync(
+            new UpdateNuggetImageCommand(
+                id,
+                GetUserId(),
+                fileName,
+                stream),
+            cancellationToken);
+
+        return Ok(new { fullPath });
     }
 
     [HttpDelete("{id:guid}")]
