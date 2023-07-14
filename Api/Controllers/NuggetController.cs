@@ -17,13 +17,11 @@ public class NuggetController : ControllerBase
 {
     private readonly INuggetDomain _nuggetDomain;
     private readonly IJwtService _jwtService;
-    private readonly IFileStorage _fileStorage;
 
-    public NuggetController(INuggetDomain nuggetDomain, IJwtService jwtService, IFileStorage fileStorage)
+    public NuggetController(INuggetDomain nuggetDomain, IJwtService jwtService)
     {
         _nuggetDomain = nuggetDomain;
         _jwtService = jwtService;
-        _fileStorage = fileStorage;
     }
 
     [AllowAnonymous]
@@ -75,40 +73,38 @@ public class NuggetController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, UpdateNuggetRequest nuggetUpdate, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(Guid id, [FromForm]UpdateNuggetRequest nuggetUpdate, CancellationToken cancellationToken)
     {
-        _nuggetDomain.UpdateAsync(
-            new UpdateNuggetCommand(id, GetUserId(), nuggetUpdate.Title, nuggetUpdate.Content),
+        using var stream = new MemoryStream();
+        string? fileName = null;
+
+        if (nuggetUpdate.File is not null)
+        {
+            fileName = nuggetUpdate.File.FileName;
+            await nuggetUpdate.File.CopyToAsync(stream, cancellationToken);
+        }
+        
+        await _nuggetDomain.UpdateAsync(
+            new UpdateNuggetCommand(
+                id,
+                GetUserId(),
+                nuggetUpdate.Title,
+                nuggetUpdate.Content,
+                fileName,
+                stream),
             cancellationToken);
 
         return Ok();
     }
 
-    [HttpPut("{id:guid}/image")]
-    public async Task<IActionResult> UpdateImage(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}/image")]
+    public async Task<IActionResult> DeleteImage(Guid id, CancellationToken cancellationToken)
     {
-        var formCollection = await Request.ReadFormAsync(cancellationToken);
-        var file = formCollection.Files[0];
-
-        if (file.Length == 0)
-        {
-            return BadRequest();
-        }
-
-        var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName?.Trim('"');
-
-        using var stream = new MemoryStream();
-        await file.CopyToAsync(stream, cancellationToken);
-
-        var fullPath = await _nuggetDomain.UpdateImageAsync(
-            new UpdateNuggetImageCommand(
-                id,
-                GetUserId(),
-                fileName,
-                stream),
+        await _nuggetDomain.DeleteImageAsync(
+            new DeleteNuggetImageCommand(id, GetUserId()),
             cancellationToken);
 
-        return Ok(new { fullPath });
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]

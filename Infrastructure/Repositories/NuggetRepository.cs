@@ -24,7 +24,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task UpdateAsync(Nugget nugget, CancellationToken cancellationToken)
     {
         await using var connection = GetConnection();
-        const string sql = @"UPDATE nuggets SET title = @Title, content = @Content, updated_at = @UpdatedAt WHERE id = @Id;";
+        const string sql = @"UPDATE nuggets SET title = @Title, content = @Content, url_image = @UrlImage, updated_at = @UpdatedAt WHERE id = @Id;";
 
         await connection.ExecuteAsync(
             sql,
@@ -33,6 +33,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
                 nugget.Id,
                 nugget.Title,
                 nugget.Content,
+                nugget.UrlImage,
                 nugget.UpdatedAt
             },
             commandTimeout: 1);

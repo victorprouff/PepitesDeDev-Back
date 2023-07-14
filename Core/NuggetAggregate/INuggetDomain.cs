@@ -16,4 +16,6 @@ public interface INuggetDomain
         int limit,
         int offset,
         CancellationToken cancellationToken);
+
+    Task DeleteImageAsync(DeleteNuggetImageCommand command, CancellationToken cancellationToken);
 }

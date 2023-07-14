@@ -27,7 +27,7 @@ public class Nugget
     public static Nugget Create(string title, string content, string? urlImage, Guid userId, Instant createdAt) =>
         new(Guid.NewGuid(), title, content, urlImage, userId, createdAt, null);
     
-    public void Update(string? title, string? content, Instant updatedAt)
+    public void Update(string? title, string? content, string? urlImage, Instant updatedAt)
     {
         if (string.IsNullOrWhiteSpace(title) is false)
         {
@@ -38,6 +38,12 @@ public class Nugget
         if (string.IsNullOrWhiteSpace(content) is false)
         {
             Content = content;
+            UpdatedAt = updatedAt;
+        }
+        
+        if (string.IsNullOrWhiteSpace(urlImage) is false)
+        {
+            UrlImage = urlImage;
             UpdatedAt = updatedAt;
         }
     }
