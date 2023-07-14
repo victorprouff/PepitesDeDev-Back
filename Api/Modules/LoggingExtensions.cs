@@ -26,18 +26,18 @@ public static class LoggingExtensions
         ITextFormatter? textFormatter = null,
         IEnumerable<IExceptionDestructurer>? destructurers = null)
     {
-        // loggerConfiguration.ReadFrom.Configuration(configuration)
-        //     .Enrich.FromLogContext()
-        //     .Enrich.WithMachineName()
-        //     .Enrich.WithProcessId()
-        //     .Enrich.WithProcessName()
-        //     .Enrich.WithThreadId()
-        //     .Enrich.WithThreadName()
-        //     .Enrich.WithExceptionDetails(
-        //         new DestructuringOptionsBuilder().WithDefaultDestructurers()
-        //             .WithRootName("ExceptionDetail")
-        //             .WithDestructurers(destructurers ?? Array.Empty<IExceptionDestructurer>()))
-        //     .WriteTo.Debug();
+        loggerConfiguration.ReadFrom.Configuration(configuration)
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .Enrich.WithProcessId()
+            .Enrich.WithProcessName()
+            .Enrich.WithThreadId()
+            .Enrich.WithThreadName()
+            .Enrich.WithExceptionDetails(
+                new DestructuringOptionsBuilder().WithDefaultDestructurers()
+                    .WithRootName("ExceptionDetail")
+                    .WithDestructurers(destructurers ?? Array.Empty<IExceptionDestructurer>()))
+            .WriteTo.Debug();
 
         if (textFormatter != null)
         {
