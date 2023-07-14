@@ -15,7 +15,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task CreateAsync(Nugget nugget, CancellationToken cancellationToken)
     {
         const string sql =
-            @"INSERT INTO nuggets (id, title, content, user_id, created_at, updated_at) VALUES (@Id, @Title, @Content, @UserId, @CreatedAt, @UpdatedAt);";
+            @"INSERT INTO nuggets (id, title, content, url_image, user_id, created_at, updated_at) VALUES (@Id, @Title, @Content, @UrlImage, @UserId, @CreatedAt, @UpdatedAt);";
 
         await using var connection = GetConnection();
         await connection.ExecuteAsync(sql, (NuggetEntity)nugget, commandTimeout: 1);

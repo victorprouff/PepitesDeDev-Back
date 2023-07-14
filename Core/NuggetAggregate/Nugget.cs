@@ -24,8 +24,8 @@ public class Nugget
     public Instant CreatedAt { get; private set; }
     public Instant? UpdatedAt { get; private set; }
     
-    public static Nugget Create(string title, string content, Guid userId, Instant createdAt) =>
-        new(Guid.NewGuid(), title, content, null, userId, createdAt, null);
+    public static Nugget Create(string title, string content, string? urlImage, Guid userId, Instant createdAt) =>
+        new(Guid.NewGuid(), title, content, urlImage, userId, createdAt, null);
     
     public void Update(string? title, string? content, Instant updatedAt)
     {

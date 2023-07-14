@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using Api.Authorization;
 using Api.Models.Nuggets;
+using Core.Interfaces;
 using Core.NuggetAggregate;
 using Core.NuggetAggregate.Models;
 using Core.Services.Interfaces;
@@ -16,11 +17,13 @@ public class NuggetController : ControllerBase
 {
     private readonly INuggetDomain _nuggetDomain;
     private readonly IJwtService _jwtService;
+    private readonly IFileStorage _fileStorage;
 
-    public NuggetController(INuggetDomain nuggetDomain, IJwtService jwtService)
+    public NuggetController(INuggetDomain nuggetDomain, IJwtService jwtService, IFileStorage fileStorage)
     {
         _nuggetDomain = nuggetDomain;
         _jwtService = jwtService;
+        _fileStorage = fileStorage;
     }
 
     [AllowAnonymous]
@@ -42,7 +45,9 @@ public class NuggetController : ControllerBase
     }
 
     [HttpGet("user")]
-    public async Task<IActionResult> GetListByUserId(CancellationToken cancellationToken, int limit = 10,
+    public async Task<IActionResult> GetListByUserId(
+        CancellationToken cancellationToken,
+        int limit = 10,
         int offset = 0)
     {
         var response = await _nuggetDomain.GetAllByUserIdOrAdminAsync(GetUserId(), limit, offset, cancellationToken);
@@ -51,22 +56,20 @@ public class NuggetController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateNuggetRequest nugget, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create([FromForm]CreateNuggetRequest nugget, CancellationToken cancellationToken)
     {
-        // var formCollection = await Request.ReadFormAsync(cancellationToken);
-        // var file = formCollection.Files[0];
-        //
-        // if (file.Length > 0)
-        // {
-        //     var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName?.Trim('"');
-        //
-        //     using var stream = new MemoryStream();
-        //     await file.CopyToAsync(stream, cancellationToken);
-        //     
-        // }
+        using var stream = new MemoryStream();
+        string? fileName = null;
+
+        if (nugget.File is not null)
+        {
+            fileName = nugget.File.FileName;
+            await nugget.File.CopyToAsync(stream, cancellationToken);
+        }
 
         var nuggetId = await _nuggetDomain.CreateAsync(
-            new CreateNuggetCommand(nugget.Title, nugget.Content, GetUserId()), cancellationToken);
+            new CreateNuggetCommand(nugget.Title, nugget.Content, GetUserId(), fileName, stream),
+            cancellationToken);
 
         return Ok(nuggetId);
     }
@@ -96,7 +99,7 @@ public class NuggetController : ControllerBase
 
         using var stream = new MemoryStream();
         await file.CopyToAsync(stream, cancellationToken);
-            
+
         var fullPath = await _nuggetDomain.UpdateImageAsync(
             new UpdateNuggetImageCommand(
                 id,

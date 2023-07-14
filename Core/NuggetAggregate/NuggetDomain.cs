@@ -33,13 +33,38 @@ public class NuggetDomain : INuggetDomain
 
     public async Task<Guid> CreateAsync(CreateNuggetCommand createNuggetCommand, CancellationToken cancellationToken)
     {
+        var fileName = createNuggetCommand.FileNameImage ?? Guid.NewGuid().ToString();
+        var fullPath = Path.Combine($"https://{BucketName}.{_cleverCloudHost}/", fileName);
+        
+        if (createNuggetCommand.Stream.Length > 0)
+        {
+            await _fileStorage.UploadFileAsync(BucketName, fileName, createNuggetCommand.Stream, cancellationToken);
+        }
+        else
+        {
+            fullPath = null;
+        }
+        
         var newNugget = Nugget.Create(
             createNuggetCommand.Title,
             createNuggetCommand.Content,
+            fullPath,
             createNuggetCommand.UserId,
             _clock.GetCurrentInstant());
 
-        await _repository.CreateAsync(newNugget, cancellationToken);
+        try
+        {
+            await _repository.CreateAsync(newNugget, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            if (string.IsNullOrWhiteSpace(fullPath) is false)
+            {
+                await _fileStorage.DeleteFileAsync(BucketName, Path.GetFileName(fullPath), cancellationToken);
+            }
+            
+            throw new Exception("", e);
+        }
 
         return newNugget.Id;
     }
