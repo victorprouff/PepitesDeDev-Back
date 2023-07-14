@@ -1,6 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Core.Interfaces;
+using Infrastructure.Storages.Exceptions;
 
 namespace Infrastructure.Storages;
 
@@ -13,7 +14,7 @@ public class FileStorage : IFileStorage
         _client = client;
     }
     
-    public async Task<bool> UploadFileAsync(string bucketName, string fileName, MemoryStream stream, CancellationToken cancellationToken)
+    public async Task UploadFileAsync(string bucketName, string fileName, MemoryStream stream, CancellationToken cancellationToken)
     {
         var request = new PutObjectRequest
         {
@@ -24,13 +25,11 @@ public class FileStorage : IFileStorage
         };
         
         var response = await _client.PutObjectAsync(request, cancellationToken);
-        if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+        if (response.HttpStatusCode != System.Net.HttpStatusCode.OK)
         {
-            return true;
+            throw new FileCanNotUpdateException(
+                $"Could not delete {fileName} to {bucketName}. Status : {response.HttpStatusCode}");
         }
-
-        Console.WriteLine($"Could not upload {fileName} to {bucketName}.");
-        return false;
     }
     
     public async Task DeleteFileAsync(string bucketName, string fileName, CancellationToken cancellationToken)
@@ -41,20 +40,11 @@ public class FileStorage : IFileStorage
             Key = fileName
         };
 
-        try
+        var response = await _client.DeleteObjectAsync(request, cancellationToken);
+        if (response.HttpStatusCode != System.Net.HttpStatusCode.NoContent)
         {
-            var response = await _client.DeleteObjectAsync(request, cancellationToken);
-            if (response.HttpStatusCode != System.Net.HttpStatusCode.NoContent)
-            {
-                Console.WriteLine($"Could not delete {fileName} to {bucketName}. Status : {response.HttpStatusCode}", response);
-
-                throw new Exception();
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
+            throw new FileCanNotDeleteException(
+                $"Could not delete {fileName} to {bucketName}. Status : {response.HttpStatusCode}");
         }
     }
 }

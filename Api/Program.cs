@@ -3,10 +3,15 @@ using Api.Modules;
 using Microsoft.AspNetCore.Http.Features;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
+using Serilog.Formatting.Json;
+using Serilog;
 
 const string allowSpecificOrigin = "AllowSpecificOrigin";
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, cfg) =>
+    cfg.GetConfiguration(context.Configuration, new JsonFormatter(renderMessage: true)));
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -50,6 +55,7 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseLogging();
 
 app.UseCors(allowSpecificOrigin);
 

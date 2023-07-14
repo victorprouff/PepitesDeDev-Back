@@ -28,7 +28,8 @@ public static class ApplicationExtensions
         
         services.AddTransient<INuggetDomain, NuggetDomain>(c =>
             new NuggetDomain(
-                c.GetRequiredService<IClock>(), 
+                c.GetRequiredService<IClock>(),
+                c.GetRequiredService<ILogger<NuggetDomain>>(),
                 c.GetRequiredService<INuggetRepository>(),
                 c.GetRequiredService<IUserRepository>(),
                 c.GetRequiredService<IFileStorage>(),

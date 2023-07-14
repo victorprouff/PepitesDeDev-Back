@@ -3,6 +3,7 @@ using Core.Interfaces;
 using Core.NuggetAggregate.Exceptions;
 using Core.NuggetAggregate.Models;
 using Core.NuggetAggregate.Projections;
+using Microsoft.Extensions.Logging;
 using NodaTime;
 
 namespace Core.NuggetAggregate;
@@ -10,6 +11,7 @@ namespace Core.NuggetAggregate;
 public class NuggetDomain : INuggetDomain
 {
     private readonly IClock _clock;
+    private readonly ILogger<NuggetDomain> _logger;
     private readonly INuggetRepository _repository;
     private readonly IUserRepository _userRepository;
     private readonly IFileStorage _fileStorage;
@@ -19,12 +21,14 @@ public class NuggetDomain : INuggetDomain
 
     public NuggetDomain(
         IClock clock,
+        ILogger<NuggetDomain> logger,
         INuggetRepository repository,
         IUserRepository userRepository,
         IFileStorage fileStorage,
         string cleverCloudHost)
     {
         _clock = clock;
+        _logger = logger;
         _repository = repository;
         _userRepository = userRepository;
         _fileStorage = fileStorage;
@@ -53,9 +57,10 @@ public class NuggetDomain : INuggetDomain
             if (string.IsNullOrWhiteSpace(fullPath) is false)
             {
                 await _fileStorage.DeleteFileAsync(BucketName, Path.GetFileName(fullPath), cancellationToken);
+                _logger.LogWarning("The nugget could not be created. The image has been deleted");
             }
 
-            throw new Exception("", e);
+            throw new NotBeCreatedException("The nugget could not be created.", e);
         }
 
         return newNugget.Id;

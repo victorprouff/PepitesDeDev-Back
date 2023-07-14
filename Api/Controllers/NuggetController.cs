@@ -1,7 +1,5 @@
-using System.Net.Http.Headers;
 using Api.Authorization;
 using Api.Models.Nuggets;
-using Core.Interfaces;
 using Core.NuggetAggregate;
 using Core.NuggetAggregate.Models;
 using Core.Services.Interfaces;
