@@ -9,6 +9,7 @@ using Nugget = Api.Models.Nuggets.Nugget;
 namespace Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class NuggetController : ControllerBase
 {
@@ -26,7 +27,7 @@ public class NuggetController : ControllerBase
     public async Task<IActionResult> GetList(CancellationToken cancellationToken, int limit = 10, int offset = 0)
     {
         var response = await _nuggetDomain.GetAllAsync(limit, offset, cancellationToken);
-        
+
         return Ok(new GetAllNuggetResponse(response.NbOfNuggets, response.Nuggets.Select(n => (Nugget)n)));
     }
 
@@ -38,9 +39,12 @@ public class NuggetController : ControllerBase
 
         return Ok((GetNuggetResponse)nugget);
     }
-    
+
     [HttpGet("user")]
-    public async Task<IActionResult> GetListByUserId(CancellationToken cancellationToken, int limit = 10, int offset = 0)
+    public async Task<IActionResult> GetListByUserId(
+        CancellationToken cancellationToken,
+        int limit = 10,
+        int offset = 0)
     {
         var response = await _nuggetDomain.GetAllByUserIdOrAdminAsync(GetUserId(), limit, offset, cancellationToken);
 
@@ -48,22 +52,57 @@ public class NuggetController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateNuggetRequest nugget, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create([FromForm]CreateNuggetRequest nugget, CancellationToken cancellationToken)
     {
+        using var stream = new MemoryStream();
+        string? fileName = null;
+
+        if (nugget.File is not null)
+        {
+            fileName = nugget.File.FileName;
+            await nugget.File.CopyToAsync(stream, cancellationToken);
+        }
+
         var nuggetId = await _nuggetDomain.CreateAsync(
-            new CreateNuggetCommand(nugget.Title, nugget.Content, GetUserId()), cancellationToken);
-        
+            new CreateNuggetCommand(nugget.Title, nugget.Content, GetUserId(), fileName, stream),
+            cancellationToken);
+
         return Ok(nuggetId);
     }
 
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, UpdateNuggetRequest nuggetUpdate, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(Guid id, [FromForm]UpdateNuggetRequest nuggetUpdate, CancellationToken cancellationToken)
     {
-        _nuggetDomain.UpdateAsync(
-            new UpdateNuggetCommand(id, GetUserId(), nuggetUpdate.Title, nuggetUpdate.Content),
+        using var stream = new MemoryStream();
+        string? fileName = null;
+
+        if (nuggetUpdate.File is not null)
+        {
+            fileName = nuggetUpdate.File.FileName;
+            await nuggetUpdate.File.CopyToAsync(stream, cancellationToken);
+        }
+        
+        await _nuggetDomain.UpdateAsync(
+            new UpdateNuggetCommand(
+                id,
+                GetUserId(),
+                nuggetUpdate.Title,
+                nuggetUpdate.Content,
+                fileName,
+                stream),
             cancellationToken);
 
         return Ok();
+    }
+
+    [HttpDelete("{id:guid}/image")]
+    public async Task<IActionResult> DeleteImage(Guid id, CancellationToken cancellationToken)
+    {
+        await _nuggetDomain.DeleteImageAsync(
+            new DeleteNuggetImageCommand(id, GetUserId()),
+            cancellationToken);
+
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]

@@ -1,3 +1,3 @@
 namespace Api.Models.Nuggets;
 
-public record CreateNuggetRequest(string Title, string Content);
+public record CreateNuggetRequest(IFormFile? File, string Title, string Content);

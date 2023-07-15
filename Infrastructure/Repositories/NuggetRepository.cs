@@ -15,7 +15,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task CreateAsync(Nugget nugget, CancellationToken cancellationToken)
     {
         const string sql =
-            @"INSERT INTO nuggets (id, title, content, user_id, created_at, updated_at) VALUES (@Id, @Title, @Content, @UserId, @CreatedAt, @UpdatedAt);";
+            @"INSERT INTO nuggets (id, title, content, url_image, user_id, created_at, updated_at) VALUES (@Id, @Title, @Content, @UrlImage, @UserId, @CreatedAt, @UpdatedAt);";
 
         await using var connection = GetConnection();
         await connection.ExecuteAsync(sql, (NuggetEntity)nugget, commandTimeout: 1);
@@ -24,7 +24,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task UpdateAsync(Nugget nugget, CancellationToken cancellationToken)
     {
         await using var connection = GetConnection();
-        const string sql = @"UPDATE nuggets SET title = @Title, content = @Content, updated_at = @UpdatedAt WHERE id = @Id;";
+        const string sql = @"UPDATE nuggets SET title = @Title, content = @Content, url_image = @UrlImage, updated_at = @UpdatedAt WHERE id = @Id;";
 
         await connection.ExecuteAsync(
             sql,
@@ -33,6 +33,23 @@ public class NuggetRepository : BaseRepository, INuggetRepository
                 nugget.Id,
                 nugget.Title,
                 nugget.Content,
+                nugget.UrlImage,
+                nugget.UpdatedAt
+            },
+            commandTimeout: 1);
+    }
+
+    public async Task UpdateUrlImageAsync(Nugget nugget, CancellationToken cancellationToken)
+    {
+        await using var connection = GetConnection();
+        const string sql = @"UPDATE nuggets SET url_image = @UrlImage, updated_at = @UpdatedAt WHERE id = @Id;";
+
+        await connection.ExecuteAsync(
+            sql,
+            new
+            {
+                nugget.Id,
+                nugget.UrlImage,
                 nugget.UpdatedAt
             },
             commandTimeout: 1);
@@ -50,7 +67,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     {
         const string sql = @"
             SELECT count(*) FROM nuggets;
-            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.url_image, n.user_id, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             ORDER BY created_at
@@ -74,7 +91,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     {
         const string sql = @"
             SELECT count(*) FROM nuggets WHERE user_id = @UserId;
-            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.user_id = @UserId
@@ -98,7 +115,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task<GetNuggetProjection?> GetByIdProjection(Guid id, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.id = @Id";
@@ -113,7 +130,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT n.id, n.title, n.content, n.user_id, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.id = @Id";

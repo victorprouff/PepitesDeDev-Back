@@ -5,8 +5,9 @@ namespace Core.NuggetAggregate;
 
 public interface INuggetDomain
 {
-    Task<Guid> CreateAsync(CreateNuggetCommand createNuggetCommand, CancellationToken cancellationToken);
-    Task UpdateAsync(UpdateNuggetCommand updateNuggetCommand, CancellationToken cancellationToken);
+    Task<Guid> CreateAsync(CreateNuggetCommand command, CancellationToken cancellationToken);
+    Task UpdateAsync(UpdateNuggetCommand command, CancellationToken cancellationToken);
+    Task<string> UpdateImageAsync(UpdateNuggetImageCommand command, CancellationToken cancellationToken);
     Task DeleteAsync(Guid id, Guid userId, CancellationToken cancellationToken);
     Task<GetNuggetProjection> GetAsync(Guid id, CancellationToken cancellationToken);
     Task<GetAllNuggetsProjection> GetAllAsync(int limit, int offset, CancellationToken cancellationToken);
@@ -15,4 +16,6 @@ public interface INuggetDomain
         int limit,
         int offset,
         CancellationToken cancellationToken);
+
+    Task DeleteImageAsync(DeleteNuggetImageCommand command, CancellationToken cancellationToken);
 }

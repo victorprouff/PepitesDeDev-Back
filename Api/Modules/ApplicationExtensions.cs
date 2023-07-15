@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Core.Interfaces;
 using Core.Models.Authentification;
 using Core.NuggetAggregate;
@@ -5,6 +6,7 @@ using Core.Services;
 using Core.Services.Interfaces;
 using Core.UserAggregate;
 using Infrastructure.Repositories;
+using Infrastructure.Storages;
 using NodaTime;
 
 namespace Api.Modules;
@@ -24,10 +26,29 @@ public static class ApplicationExtensions
 
         services.AddTransient<IPasswordEncryptor, PasswordEncryptor>();
         
-        services.AddTransient<INuggetDomain, NuggetDomain>();
+        services.AddTransient<INuggetDomain, NuggetDomain>(c =>
+            new NuggetDomain(
+                c.GetRequiredService<IClock>(),
+                c.GetRequiredService<ILogger<NuggetDomain>>(),
+                c.GetRequiredService<INuggetRepository>(),
+                c.GetRequiredService<IUserRepository>(),
+                c.GetRequiredService<IFileStorage>(),
+                configuration.GetValue<string>("CleverCloud:Host")));
+        
         services.AddTransient<IUserDomain, UserDomain>();
 
+        services.AddSingleton<IAmazonS3, AmazonS3Client>(_ => new AmazonS3Client(
+            configuration.GetValue<string>("CleverCloud:AccessKeyId"),
+            configuration.GetValue<string>("CleverCloud:SecretAccessKey"),
+            new AmazonS3Config
+            {
+                ServiceURL = configuration.GetValue<string>("CleverCloud:Url")
+            }
+        ));
+
         services.AddScoped<IJwtService, JwtService>();
+
+        services.AddScoped<IFileStorage, FileStorage>();
 
         return services;
     }
