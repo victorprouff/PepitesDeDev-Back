@@ -33,16 +33,16 @@ public static class ApplicationExtensions
                 c.GetRequiredService<INuggetRepository>(),
                 c.GetRequiredService<IUserRepository>(),
                 c.GetRequiredService<IFileStorage>(),
-                configuration.GetValue<string>("CELLAR_ADDON_HOST")));
+                configuration.GetValue<string>("CleverCloud:Host")));
         
         services.AddTransient<IUserDomain, UserDomain>();
 
         services.AddSingleton<IAmazonS3, AmazonS3Client>(_ => new AmazonS3Client(
-            configuration.GetValue<string>("CELLAR_ADDON_KEY_ID"),
-            configuration.GetValue<string>("CELLAR_ADDON_KEY_SECRET"),
+            configuration.GetValue<string>("CleverCloud:AccessKeyId"),
+            configuration.GetValue<string>("CleverCloud:SecretAccessKey"),
             new AmazonS3Config
             {
-                ServiceURL = configuration.GetValue<string>("CELLAR_ADDON_URL")
+                ServiceURL = configuration.GetValue<string>("CleverCloud:Url")
             }
         ));
 
