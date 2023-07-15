@@ -35,17 +35,15 @@ public class NuggetDomain : INuggetDomain
         _cleverCloudHost = cleverCloudHost;
     }
 
-    public async Task<Guid> CreateAsync(CreateNuggetCommand createNuggetCommand, CancellationToken cancellationToken)
+    public async Task<Guid> CreateAsync(CreateNuggetCommand command, CancellationToken cancellationToken)
     {
-        var fullPath = createNuggetCommand.Stream.Length > 0
-            ? await SaveImageNugget(createNuggetCommand.Stream, createNuggetCommand.FileNameImage, cancellationToken)
-            : null;
+        var fullPath = await SaveImageNugget(command.Stream, command.FileNameImage, cancellationToken);
 
         var newNugget = Nugget.Create(
-            createNuggetCommand.Title,
-            createNuggetCommand.Content,
+            command.Title,
+            command.Content,
             fullPath,
-            createNuggetCommand.UserId,
+            command.UserId,
             _clock.GetCurrentInstant());
 
         try
@@ -66,28 +64,29 @@ public class NuggetDomain : INuggetDomain
         return newNugget.Id;
     }
 
-    public async Task UpdateAsync(UpdateNuggetCommand updateNuggetCommand, CancellationToken cancellationToken)
+    public async Task UpdateAsync(UpdateNuggetCommand command, CancellationToken cancellationToken)
     {
-        var nugget = await _repository.GetById(updateNuggetCommand.Id, cancellationToken)
-                     ?? throw new NotFoundException($"The nugget with id {updateNuggetCommand.Id} is not found.");
+        var nugget = await _repository.GetById(command.Id, cancellationToken)
+                     ?? throw new NotFoundException($"The nugget with id {command.Id} is not found.");
 
-        var userIsAdmin = await _userRepository.CheckIfIsAdmin(updateNuggetCommand.UserId, cancellationToken);
-        if (nugget.UserId != updateNuggetCommand.UserId && userIsAdmin is false)
+        var userIsAdmin = await _userRepository.CheckIfIsAdmin(command.UserId, cancellationToken);
+        if (nugget.UserId != command.UserId && userIsAdmin is false)
         {
             throw new NuggetDoesNotBelongToUserException(
-                $"The nugget with id {updateNuggetCommand.Id} doesn't belong to the user with id {updateNuggetCommand.UserId}.");
+                $"The nugget with id {command.Id} doesn't belong to the user with id {command.UserId}.");
         }
 
-        var fullPath = updateNuggetCommand.Stream.Length > 0
-            ? await SaveImageNugget(updateNuggetCommand.Stream, updateNuggetCommand.FileNameImage, cancellationToken)
-            : null;
+        var fullPath = await SaveImageNugget(
+            command.Stream,
+            command.FileNameImage,
+            cancellationToken);
 
         if (fullPath is not null && nugget.UrlImage is not null)
         {
             await _fileStorage.DeleteFileAsync(BucketName, Path.GetFileName(nugget.UrlImage), cancellationToken);
         }
-        
-        nugget.Update(updateNuggetCommand.Title, updateNuggetCommand.Content, fullPath, _clock.GetCurrentInstant());
+
+        nugget.Update(command.Title, command.Content, fullPath, _clock.GetCurrentInstant());
 
         await _repository.UpdateAsync(nugget, cancellationToken);
     }
@@ -175,13 +174,18 @@ public class NuggetDomain : INuggetDomain
 
         await _repository.Delete(id, cancellationToken);
     }
-    
-    private async Task<string> SaveImageNugget(
+
+    private async Task<string?> SaveImageNugget(
         MemoryStream stream,
         string? fileNameImage,
         CancellationToken cancellationToken)
     {
-        var fileName = fileNameImage ?? Guid.NewGuid().ToString();
+        if (stream.Length <= 0)
+        {
+            return null;
+        }
+
+        var fileName = $"{_clock.GetCurrentInstant().ToString()}-{fileNameImage ?? Guid.NewGuid().ToString()}";
 
         await _fileStorage.UploadFileAsync(BucketName, fileName, stream, cancellationToken);
         return Path.Combine($"https://{BucketName}.{_cleverCloudHost}/", fileName);
