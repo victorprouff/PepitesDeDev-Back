@@ -3,15 +3,23 @@ using Api.Modules;
 using Microsoft.AspNetCore.Http.Features;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
+using Prometheus;
 using Serilog.Formatting.Json;
 using Serilog;
+using Serilog.Formatting.Compact;
 
 const string allowSpecificOrigin = "AllowSpecificOrigin";
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, cfg) =>
-    cfg.GetConfiguration(context.Configuration, new JsonFormatter(renderMessage: true)));
+{
+
+    cfg.GetConfiguration(context.Configuration, new JsonFormatter(renderMessage: true));
+    cfg.Enrich.WithProperty("Application", context.HostingEnvironment.ApplicationName)
+        .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName)
+        .WriteTo.Console(new RenderedCompactJsonFormatter());
+});
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -46,6 +54,8 @@ builder.Services.Configure<FormOptions>(o =>
 
 var app = builder.Build();
 
+app.UseMetricServer();
+
 // Configure the HTTP request pipeline.
 // if (app.Environment.IsDevelopment())
 // {
@@ -55,11 +65,17 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
 app.UseLogging();
 
 app.UseCors(allowSpecificOrigin);
 
 app.UseHttpsRedirection();
+
+app.UseHttpMetrics(options =>
+{
+    options.AddCustomLabel("host", context => context.Request.Host.Host);
+});
 
 app.UseAuthorization();
 

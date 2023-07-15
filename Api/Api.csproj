@@ -12,6 +12,9 @@
         <PackageReference Include="NodaTime.Serialization.JsonNet" Version="3.0.1" />
         <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.0.0" />
         <PackageReference Include="Npgsql.NodaTime" Version="7.0.4" />
+        <PackageReference Include="prometheus-net" Version="8.0.0" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
+        <PackageReference Include="prometheus-net.AspNetCore.HealthChecks" Version="8.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
