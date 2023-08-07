@@ -18,6 +18,11 @@ public class NuggetDomainTestShould
     private readonly Mock<IUserRepository> _userRepository;
     private readonly Mock<IFileStorage> _fileStorage;
 
+    private static readonly Guid GoodGuidUser = Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675");
+    private static readonly Guid BadGuidUser = Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC699");
+    private static readonly Guid GoodGuidNugget = Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6");
+    private static readonly Guid BadGuidNugget = Guid.Parse("DE540E54-DCF8-4717-AF50-332BCC1DFE2F");
+
     public NuggetDomainTestShould()
     {
         _clock = FakeClock.FromUtc(2020, 3, 6, 14, 13, 0);
@@ -44,7 +49,7 @@ public class NuggetDomainTestShould
             new CreateNuggetCommand(
                 "Title",
                 "Content",
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidUser,
                 "FileNameImage",
                 new MemoryStream()),
             CancellationToken.None);
@@ -58,7 +63,7 @@ public class NuggetDomainTestShould
             Times.Never);
         _nuggetRepository.Verify(e => e.CreateAsync(
                 It.Is<Nugget>(n => n.Id == newNuggetId &&
-                                   n.UserId == Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675") &&
+                                   n.UserId == GoodGuidUser &&
                                    n.Title == "Title" &&
                                    n.Content == "Content" &&
                                    n.UrlImage == null &&
@@ -76,7 +81,7 @@ public class NuggetDomainTestShould
             new CreateNuggetCommand(
                 "Title",
                 "Content",
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidUser,
                 "FileNameImage",
                 new MemoryStream(mockData)),
             CancellationToken.None);
@@ -91,7 +96,7 @@ public class NuggetDomainTestShould
 
         _nuggetRepository.Verify(e => e.CreateAsync(
                 It.Is<Nugget>(n => n.Id == newNuggetId &&
-                                   n.UserId == Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675") &&
+                                   n.UserId == GoodGuidUser &&
                                    n.Title == "Title" &&
                                    n.Content == "Content" &&
                                    n.UrlImage == "https://nuggets-images.host/2020-03-06T14:13:00Z-FileNameImage" &&
@@ -115,7 +120,7 @@ public class NuggetDomainTestShould
             new CreateNuggetCommand(
                 "Title",
                 "Content",
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidUser,
                 "FileNameImage",
                 new MemoryStream(mockData)),
             CancellationToken.None);
@@ -138,7 +143,7 @@ public class NuggetDomainTestShould
 
         _nuggetRepository.Verify(e => e.CreateAsync(
                 It.Is<Nugget>(n =>
-                    n.UserId == Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675") &&
+                    n.UserId == GoodGuidUser &&
                     n.Title == "Title" &&
                     n.Content == "Content" &&
                     n.UrlImage == "https://nuggets-images.host/2020-03-06T14:13:00Z-FileNameImage" &&
@@ -153,8 +158,8 @@ public class NuggetDomainTestShould
     {
         var act = async () => await _nuggetDomain.UpdateAsync(
             new UpdateNuggetCommand(
-                Guid.Parse("DE540E54-DCF8-4717-AF50-332BCC1DFE2F"),
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                BadGuidNugget,
+                GoodGuidUser,
                 "Title",
                 "Content",
                 "FileNameImage",
@@ -162,7 +167,7 @@ public class NuggetDomainTestShould
             CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage("The nugget with id DE540E54-DCF8-4717-AF50-332BCC1DFE2F is not found.");
+            .WithMessage($"The nugget with id {BadGuidNugget} is not found.");
 
         _fileStorage.Verify(f =>
                 f.UploadFileAsync(
@@ -179,7 +184,7 @@ public class NuggetDomainTestShould
                 It.IsAny<CancellationToken>()),
             Times.Never);
         _nuggetRepository.Verify(
-            e => e.GetById(Guid.Parse("DE540E54-DCF8-4717-AF50-332BCC1DFE2F"), It.IsAny<CancellationToken>()),
+            e => e.GetById(BadGuidNugget, It.IsAny<CancellationToken>()),
             Times.Once);
         _nuggetRepository.Verify(e => e.UpdateAsync(
                 It.IsAny<Nugget>(),
@@ -192,8 +197,8 @@ public class NuggetDomainTestShould
     {
         var act = async () => await _nuggetDomain.UpdateAsync(
             new UpdateNuggetCommand(
-                Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"),
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC699"),
+                GoodGuidNugget,
+                BadGuidUser,
                 "newTitle",
                 "newContent",
                 "newFileNameImage",
@@ -203,7 +208,7 @@ public class NuggetDomainTestShould
         await act.Should()
             .ThrowAsync<NuggetDoesNotBelongToUserException>()
             .WithMessage(
-                $"The nugget with id 3F7132FC-7F73-40BE-88A8-F94D8CC933D6 doesn't belong to the user with id DAEAE728-BF12-4620-837A-81A6614CC699.");
+                $"The nugget with id {GoodGuidNugget} doesn't belong to the user with id {BadGuidUser}.");
 
         _fileStorage.Verify(f =>
                 f.UploadFileAsync(
@@ -216,7 +221,7 @@ public class NuggetDomainTestShould
                 f.DeleteFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
         _userRepository.Verify(e => e.CheckIfIsAdmin(
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC699"),
+                BadGuidUser,
                 It.IsAny<CancellationToken>()),
             Times.Once);
         _nuggetRepository.Verify(e => e.UpdateAsync(
@@ -232,8 +237,8 @@ public class NuggetDomainTestShould
 
         await _nuggetDomain.UpdateAsync(
             new UpdateNuggetCommand(
-                Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"),
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidNugget,
+                GoodGuidUser,
                 "newTitle",
                 "newContent",
                 "newFileNameImage",
@@ -241,11 +246,11 @@ public class NuggetDomainTestShould
             CancellationToken.None);
 
         _nuggetRepository.Verify(
-            e => e.GetById(Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"), It.IsAny<CancellationToken>()),
+            e => e.GetById(GoodGuidNugget, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _userRepository.Verify(e => e.CheckIfIsAdmin(
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidUser,
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
@@ -265,7 +270,7 @@ public class NuggetDomainTestShould
             Times.Once);
 
         _nuggetRepository.Verify(e => e.UpdateAsync(
-                It.Is<Nugget>(n => n.UserId == Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675") &&
+                It.Is<Nugget>(n => n.UserId == GoodGuidUser &&
                                    n.Title == "newTitle" &&
                                    n.Content == "newContent" &&
                                    n.UrlImage == "https://nuggets-images.host/2020-03-06T14:13:00Z-newFileNameImage" &&
@@ -280,17 +285,17 @@ public class NuggetDomainTestShould
     {
         var act = async () => await _nuggetDomain.UpdateImageAsync(
             new UpdateNuggetImageCommand(
-                Guid.Parse("DE540E54-DCF8-4717-AF50-332BCC1DFE2F"),
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                BadGuidNugget,
+                GoodGuidUser,
                 "FileNameImage",
                 new MemoryStream()),
             CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage("The nugget with id DE540E54-DCF8-4717-AF50-332BCC1DFE2F is not found.");
+            .WithMessage($"The nugget with id {BadGuidNugget} is not found.");
 
         _nuggetRepository.Verify(
-            e => e.GetById(Guid.Parse("DE540E54-DCF8-4717-AF50-332BCC1DFE2F"), It.IsAny<CancellationToken>()),
+            e => e.GetById(BadGuidNugget, It.IsAny<CancellationToken>()),
             Times.Once);
         _userRepository.Verify(e => e.CheckIfIsAdmin(
                 It.IsAny<Guid>(),
@@ -318,8 +323,8 @@ public class NuggetDomainTestShould
     {
         var act = async () => await _nuggetDomain.UpdateImageAsync(
             new UpdateNuggetImageCommand(
-                Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"),
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidNugget,
+                GoodGuidUser,
                 "newFileNameImage",
                 new MemoryStream()),
             CancellationToken.None);
@@ -328,11 +333,55 @@ public class NuggetDomainTestShould
             .WithMessage("The image cannot be empty.");
 
         _nuggetRepository.Verify(
-            e => e.GetById(Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"), It.IsAny<CancellationToken>()),
+            e => e.GetById(GoodGuidNugget, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _userRepository.Verify(e => e.CheckIfIsAdmin(
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidUser,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _fileStorage.Verify(f =>
+                f.UploadFileAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<MemoryStream>(),
+                    It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _fileStorage.Verify(f =>
+                f.DeleteFileAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _nuggetRepository.Verify(e => e.UpdateUrlImageAsync(
+                It.IsAny<Nugget>(),
+            It.IsAny<CancellationToken>()),
+        Times.Never);
+    }
+    
+    [Fact]
+    public async Task UpdateImageAsyncNuggetDoesNotBelongToUserException()
+    {
+        var act = async () => await _nuggetDomain.UpdateImageAsync(
+            new UpdateNuggetImageCommand(
+                GoodGuidNugget,
+                BadGuidUser,
+                "newFileNameImage",
+                new MemoryStream()),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<NuggetDoesNotBelongToUserException>()
+            .WithMessage($"The nugget with id {GoodGuidNugget} doesn't belong to the user with id {BadGuidUser}.");
+
+        _nuggetRepository.Verify(
+            e => e.GetById(GoodGuidNugget, It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _userRepository.Verify(e => e.CheckIfIsAdmin(
+                BadGuidUser,
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
@@ -364,18 +413,18 @@ public class NuggetDomainTestShould
 
         await _nuggetDomain.UpdateImageAsync(
             new UpdateNuggetImageCommand(
-                Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"),
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidNugget,
+                GoodGuidUser,
                 "newFileNameImage",
                 new MemoryStream(mockData)),
             CancellationToken.None);
 
         _nuggetRepository.Verify(
-            e => e.GetById(Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"), It.IsAny<CancellationToken>()),
+            e => e.GetById(GoodGuidNugget, It.IsAny<CancellationToken>()),
             Times.Once);
 
         _userRepository.Verify(e => e.CheckIfIsAdmin(
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidUser,
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
@@ -395,7 +444,7 @@ public class NuggetDomainTestShould
             Times.Once);
 
         _nuggetRepository.Verify(e => e.UpdateUrlImageAsync(
-                It.Is<Nugget>(n => n.UserId == Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675") &&
+                It.Is<Nugget>(n => n.UserId == GoodGuidUser &&
                                    n.Title == "Title" &&
                                    n.Content == "Content" &&
                                    n.UrlImage == "https://nuggets-images.host/2020-03-06T14:13:00Z-newFileNameImage" &&
@@ -408,29 +457,29 @@ public class NuggetDomainTestShould
     private void SetupNuggetRepositoryMethods()
     {
         _nuggetRepository.Setup(r => r.GetById(
-                Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"),
+                GoodGuidNugget,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Nugget(
-                Guid.Parse("3F7132FC-7F73-40BE-88A8-F94D8CC933D6"),
+                GoodGuidNugget,
                 "Title",
                 "Content",
                 "https://nuggets-images.host/2020-03-06T14:13:00Z-FileNameImage",
-                Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"),
+                GoodGuidUser,
                 FakeClock.FromUtc(2020, 3, 6, 14, 13, 0).GetCurrentInstant(),
                 null));
         
         _nuggetRepository.Setup(r =>
                 r.GetById(
-                    Guid.Parse("DE540E54-DCF8-4717-AF50-332BCC1DFE2F"),
+                    BadGuidNugget,
                     It.IsAny<CancellationToken>()))
             .ReturnsAsync((Nugget)null!);
         
         _userRepository.Setup(r =>
-                r.CheckIfIsAdmin(Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC699"), It.IsAny<CancellationToken>()))
+                r.CheckIfIsAdmin(BadGuidUser, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         
         _userRepository.Setup(r =>
-                r.CheckIfIsAdmin(Guid.Parse("DAEAE728-BF12-4620-837A-81A6614CC675"), It.IsAny<CancellationToken>()))
+                r.CheckIfIsAdmin(GoodGuidUser, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
     }
 }
