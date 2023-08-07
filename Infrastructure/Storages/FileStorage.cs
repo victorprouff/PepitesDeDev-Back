@@ -27,8 +27,8 @@ public class FileStorage : IFileStorage
         var response = await _client.PutObjectAsync(request, cancellationToken);
         if (response.HttpStatusCode != System.Net.HttpStatusCode.OK)
         {
-            throw new FileCanNotUpdateException(
-                $"Could not delete {fileName} to {bucketName}. Status : {response.HttpStatusCode}");
+            throw new FileCanNotUploadException(
+                $"Could not upload {fileName} to {bucketName}. Status : {response.HttpStatusCode}");
         }
     }
     

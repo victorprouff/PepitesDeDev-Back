@@ -3,14 +3,14 @@ using Core.Exceptions;
 
 namespace Infrastructure.Storages.Exceptions;
 
-public class FileCanNotUpdateException : BaseException
+public class FileCanNotUploadException : BaseException
 {
-    public FileCanNotUpdateException(string message, Exception exception)
+    public FileCanNotUploadException(string message, Exception exception)
         : base(message, exception, HttpStatusCode.InternalServerError)
     {
     }
     
-    public FileCanNotUpdateException(string message)
+    public FileCanNotUploadException(string message)
         : base(message, HttpStatusCode.InternalServerError)
     {
     }
