@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{DB32EFC2-3C8D-458D-80CE-3F62D2FAFE76}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Tests\Core.Tests\Core.Tests.csproj", "{B69864B8-6C66-4D39-ACB8-2C8FA4ABFFF8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0443E757-C766-40CF-876F-B88F0FB7C9A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,12 @@ Global
 		{DB32EFC2-3C8D-458D-80CE-3F62D2FAFE76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB32EFC2-3C8D-458D-80CE-3F62D2FAFE76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB32EFC2-3C8D-458D-80CE-3F62D2FAFE76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B69864B8-6C66-4D39-ACB8-2C8FA4ABFFF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B69864B8-6C66-4D39-ACB8-2C8FA4ABFFF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B69864B8-6C66-4D39-ACB8-2C8FA4ABFFF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B69864B8-6C66-4D39-ACB8-2C8FA4ABFFF8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B69864B8-6C66-4D39-ACB8-2C8FA4ABFFF8} = {0443E757-C766-40CF-876F-B88F0FB7C9A8}
 	EndGlobalSection
 EndGlobal

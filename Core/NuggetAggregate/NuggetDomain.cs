@@ -104,7 +104,7 @@ public class NuggetDomain : INuggetDomain
         }
 
         var fileName = command.FileName ?? Guid.NewGuid().ToString();
-        var fullPath = Path.Combine($"https://{BucketName}.{_cleverCloudHost}/", fileName);
+        var fullPath = GeneratePathFile(fileName);
 
         await _fileStorage.UploadFileAsync(BucketName, fileName, command.Stream, cancellationToken);
 
@@ -188,6 +188,9 @@ public class NuggetDomain : INuggetDomain
         var fileName = $"{_clock.GetCurrentInstant().ToString()}-{fileNameImage ?? Guid.NewGuid().ToString()}";
 
         await _fileStorage.UploadFileAsync(BucketName, fileName, stream, cancellationToken);
-        return Path.Combine($"https://{BucketName}.{_cleverCloudHost}/", fileName);
+        return GeneratePathFile(fileName);
     }
+
+    private string GeneratePathFile(string fileName) =>
+        Path.Combine($"https://{BucketName}.{_cleverCloudHost}/", fileName);
 }
