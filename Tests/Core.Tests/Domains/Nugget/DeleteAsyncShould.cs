@@ -2,7 +2,6 @@ using Core.Exceptions;
 using Core.Interfaces;
 using Core.NuggetAggregate;
 using Core.NuggetAggregate.Exceptions;
-using Core.NuggetAggregate.Models;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -10,9 +9,8 @@ using NodaTime.Testing;
 
 namespace Core.Tests.Domains.Nugget;
 
-public class DeleteImageAsyncShould
+public class DeleteAsyncShould
 {
-    private readonly FakeClock _clock;
     private readonly NuggetDomain _nuggetDomain;
     private readonly Mock<INuggetRepository> _nuggetRepository;
     private readonly Mock<IUserRepository> _userRepository;
@@ -24,16 +22,16 @@ public class DeleteImageAsyncShould
     private static readonly Guid GoodGuidNuggetWithImage = Guid.Parse("93232D37-2468-41A3-8D4A-AECF85DDF0F8");
     private static readonly Guid BadGuidNugget = Guid.Parse("DE540E54-DCF8-4717-AF50-332BCC1DFE2F");
 
-    public DeleteImageAsyncShould()
+    public DeleteAsyncShould()
     {
-        _clock = FakeClock.FromUtc(2023, 3, 6, 14, 13, 0);
+        var clock = FakeClock.FromUtc(2023, 3, 6, 14, 13, 0);
 
         _nuggetRepository = new Mock<INuggetRepository>();
         _userRepository = new Mock<IUserRepository>();
         _fileStorage = new Mock<IFileStorage>();
 
         _nuggetDomain = new NuggetDomain(
-            _clock,
+            clock,
             new Mock<ILogger<NuggetDomain>>().Object,
             _nuggetRepository.Object,
             _userRepository.Object,
@@ -42,12 +40,12 @@ public class DeleteImageAsyncShould
 
         SetupNuggetRepositoryMethods();
     }
-
+    
+    
     [Fact]
     public async Task ThrowNotFoundException()
     {
-        var act = async () => await _nuggetDomain.DeleteImageAsync(
-            new DeleteNuggetImageCommand(BadGuidNugget, GoodGuidUser), CancellationToken.None);
+        var act = async () => await _nuggetDomain.DeleteAsync(BadGuidNugget, GoodGuidUser, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage($"The nugget with id {BadGuidNugget} is not found.");
@@ -62,8 +60,8 @@ public class DeleteImageAsyncShould
         _fileStorage.Verify(f =>
                 f.DeleteFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        _nuggetRepository.Verify(e => e.UpdateUrlImageAsync(
-                It.IsAny<NuggetAggregate.Nugget>(),
+        _nuggetRepository.Verify(e => e.Delete(
+                BadGuidNugget,
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -71,8 +69,7 @@ public class DeleteImageAsyncShould
     [Fact]
     public async Task ThrowNuggetDoesNotBelongToUserException()
     {
-        var act = async () => await _nuggetDomain.DeleteImageAsync(
-            new DeleteNuggetImageCommand(GoodGuidNugget, BadGuidUser), CancellationToken.None);
+        var act = async () => await _nuggetDomain.DeleteAsync(GoodGuidNugget, BadGuidUser, CancellationToken.None);
 
         await act.Should().ThrowAsync<NuggetDoesNotBelongToUserException>()
             .WithMessage($"The nugget with id {GoodGuidNugget} doesn't belong to the user with id {BadGuidUser}.");
@@ -87,17 +84,16 @@ public class DeleteImageAsyncShould
         _fileStorage.Verify(f =>
                 f.DeleteFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        _nuggetRepository.Verify(e => e.UpdateUrlImageAsync(
-                It.IsAny<NuggetAggregate.Nugget>(),
+        _nuggetRepository.Verify(e => e.Delete(
+                GoodGuidNugget,
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
-
+    
     [Fact]
-    public async Task DoesNothingBecauseUrlImageIsEmpty()
+    public async Task DeleteNugget()
     {
-        await _nuggetDomain.DeleteImageAsync(
-            new DeleteNuggetImageCommand(GoodGuidNugget, GoodGuidUser), CancellationToken.None);
+        await _nuggetDomain.DeleteAsync(GoodGuidNugget, GoodGuidUser, CancellationToken.None);
 
         _nuggetRepository.Verify(
             e => e.GetById(GoodGuidNugget, It.IsAny<CancellationToken>()),
@@ -109,17 +105,16 @@ public class DeleteImageAsyncShould
         _fileStorage.Verify(f =>
                 f.DeleteFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        _nuggetRepository.Verify(e => e.UpdateUrlImageAsync(
-                It.IsAny<NuggetAggregate.Nugget>(),
+        _nuggetRepository.Verify(e => e.Delete(
+                GoodGuidNugget,
                 It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
     }
-
+    
     [Fact]
-    public async Task DeleteImage()
+    public async Task DeleteNuggetWithImage()
     {
-        await _nuggetDomain.DeleteImageAsync(
-            new DeleteNuggetImageCommand(GoodGuidNuggetWithImage, GoodGuidUser), CancellationToken.None);
+        await _nuggetDomain.DeleteAsync(GoodGuidNuggetWithImage, GoodGuidUser, CancellationToken.None);
 
         _nuggetRepository.Verify(
             e => e.GetById(GoodGuidNuggetWithImage, It.IsAny<CancellationToken>()),
@@ -129,23 +124,14 @@ public class DeleteImageAsyncShould
                 It.IsAny<CancellationToken>()),
             Times.Once);
         _fileStorage.Verify(f =>
-                f.DeleteFileAsync("nuggets-images", "2020-03-06T14:13:00Z-FileNameImage",
-                    It.IsAny<CancellationToken>()),
+                f.DeleteFileAsync("nuggets-images", "2020-03-06T14:13:00Z-FileNameImage", It.IsAny<CancellationToken>()),
             Times.Once);
-        _nuggetRepository.Verify(e => e.UpdateUrlImageAsync(
-                It.Is<NuggetAggregate.Nugget>(n =>
-                    n.Id == GoodGuidNuggetWithImage &&
-                    n.Title == "Title" &&
-                    n.Content == "Content" &&
-                    n.UrlImage == null &&
-                    n.UserId == GoodGuidUser &&
-                    n.CreatedAt == FakeClock.FromUtc(2020, 3, 6, 14, 13, 0).GetCurrentInstant() &&
-                    n.UpdatedAt == _clock.GetCurrentInstant()
-                ),
+        _nuggetRepository.Verify(e => e.Delete(
+                GoodGuidNuggetWithImage,
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
-
+    
     private void SetupNuggetRepositoryMethods()
     {
         _nuggetRepository.Setup(r => r.GetById(
