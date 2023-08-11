@@ -8,7 +8,15 @@ public class GetNuggetProjection
     {
     }
     
-    public GetNuggetProjection(Guid id, Guid userId, string title, string content, string? urlImage, string creator, Instant createdAt, Instant? updatedAt)
+    public GetNuggetProjection(
+        Guid id,
+        Guid userId,
+        string title,
+        string content,
+        string? urlImage,
+        string creator,
+        Instant createdAt,
+        Instant? updatedAt)
     {
         Id = id;
         UserId = userId;
