@@ -32,17 +32,7 @@ public class GetAsyncShould
             new Mock<IFileStorage>().Object,
             "host");
 
-        _nuggetRepository.Setup(e => e.GetByIdProjection(GoodGuidNugget, CancellationToken.None))
-            .ReturnsAsync(
-                new GetNuggetProjection(
-                    GoodGuidNugget,
-                    GoodGuidUser,
-                    "Title",
-                    "Content",
-                    null,
-                    "The Creator",
-                    FakeClock.FromUtc(2020, 3, 6, 14, 13, 0).GetCurrentInstant(),
-                    null));
+        SetupNuggetRepositoryMethods();
     }
 
     [Fact]
@@ -74,5 +64,20 @@ public class GetAsyncShould
         act.Should().BeEquivalentTo(expectedProjection);
         
         _nuggetRepository.Verify(e => e.GetByIdProjection(GoodGuidNugget, CancellationToken.None), Times.Once);
+    }
+    
+    private void SetupNuggetRepositoryMethods()
+    {
+        _nuggetRepository.Setup(e => e.GetByIdProjection(GoodGuidNugget, CancellationToken.None))
+            .ReturnsAsync(
+                new GetNuggetProjection(
+                    GoodGuidNugget,
+                    GoodGuidUser,
+                    "Title",
+                    "Content",
+                    null,
+                    "The Creator",
+                    FakeClock.FromUtc(2020, 3, 6, 14, 13, 0).GetCurrentInstant(),
+                    null));
     }
 }
