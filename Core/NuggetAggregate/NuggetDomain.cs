@@ -42,6 +42,7 @@ public class NuggetDomain : INuggetDomain
         var newNugget = Nugget.Create(
             command.Title,
             command.Content,
+            command.IsEnabled,
             fullPath,
             command.UserId,
             _clock.GetCurrentInstant());
@@ -86,7 +87,7 @@ public class NuggetDomain : INuggetDomain
             await _fileStorage.DeleteFileAsync(BucketName, Path.GetFileName(nugget.UrlImage), cancellationToken);
         }
 
-        nugget.Update(command.Title, command.Content, fullPath, _clock.GetCurrentInstant());
+        nugget.Update(command.Title, command.Content, command.IsEnabled, fullPath, _clock.GetCurrentInstant());
 
         await _nuggetRepository.UpdateAsync(nugget, cancellationToken);
     }
@@ -126,8 +127,8 @@ public class NuggetDomain : INuggetDomain
         ?? throw new NotFoundException($"The nugget with id {id} is not found.");
 
     public async Task<GetAllNuggetsProjection>
-        GetAllAsync(int limit, int offset, CancellationToken cancellationToken) =>
-        await _nuggetRepository.GetAll(limit, offset, cancellationToken);
+        GetAllAsync(bool withDisabledNugget, int limit, int offset, CancellationToken cancellationToken) =>
+        await _nuggetRepository.GetAll(withDisabledNugget, limit, offset, cancellationToken);
 
     public async Task<GetAllNuggetsProjection> GetAllByUserIdOrAdminAsync(
         Guid userId,

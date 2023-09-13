@@ -9,7 +9,7 @@ public interface INuggetRepository
     Task UpdateAsync(Nugget nugget, CancellationToken cancellationToken);
     Task UpdateUrlImageAsync(Nugget nugget, CancellationToken cancellationToken);
     Task Delete(Guid id, CancellationToken cancellationToken);
-    Task<GetAllNuggetsProjection> GetAll(int limit, int offset, CancellationToken cancellationToken);
+    Task<GetAllNuggetsProjection> GetAll(bool withDisabledNugget, int limit, int offset, CancellationToken cancellationToken);
     Task<GetAllNuggetsProjection> GetAllByUserIdProjection(Guid userId, int limit, int offset, CancellationToken cancellationToken);
     Task<GetNuggetProjection?> GetByIdProjection(Guid id, CancellationToken cancellationToken);
     Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken);

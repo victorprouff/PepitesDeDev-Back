@@ -51,6 +51,7 @@ public class UpdateAsyncShould
                 GoodGuidUser,
                 "Title",
                 "Content",
+                true,
                 "FileNameImage",
                 new MemoryStream()),
             CancellationToken.None);
@@ -90,6 +91,7 @@ public class UpdateAsyncShould
                 BadGuidUser,
                 "newTitle",
                 "newContent",
+                true,
                 "newFileNameImage",
                 new MemoryStream()),
             CancellationToken.None);
@@ -130,6 +132,7 @@ public class UpdateAsyncShould
                 GoodGuidUser,
                 "newTitle",
                 "newContent",
+                true,
                 "newFileNameImage",
                 new MemoryStream(mockData)),
             CancellationToken.None);
@@ -178,6 +181,7 @@ public class UpdateAsyncShould
                 GoodGuidNugget,
                 "Title",
                 "Content",
+                true,
                 "https://nuggets-images.host/2020-03-06T14:13:00Z-FileNameImage",
                 GoodGuidUser,
                 FakeClock.FromUtc(2020, 3, 6, 14, 13, 0).GetCurrentInstant(),

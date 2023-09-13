@@ -15,7 +15,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task CreateAsync(Nugget nugget, CancellationToken cancellationToken)
     {
         const string sql =
-            @"INSERT INTO nuggets (id, title, content, url_image, user_id, created_at, updated_at) VALUES (@Id, @Title, @Content, @UrlImage, @UserId, @CreatedAt, @UpdatedAt);";
+            @"INSERT INTO nuggets (id, title, content, is_enabled, url_image, user_id, created_at, updated_at) VALUES (@Id, @Title, @Content, @IsEnabled, @UrlImage, @UserId, @CreatedAt, @UpdatedAt);";
 
         await using var connection = GetConnection();
         await connection.ExecuteAsync(sql, (NuggetEntity)nugget, commandTimeout: 1);
@@ -24,7 +24,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task UpdateAsync(Nugget nugget, CancellationToken cancellationToken)
     {
         await using var connection = GetConnection();
-        const string sql = @"UPDATE nuggets SET title = @Title, content = @Content, url_image = @UrlImage, updated_at = @UpdatedAt WHERE id = @Id;";
+        const string sql = @"UPDATE nuggets SET title = @Title, is_enabled = @IsEnabled, content = @Content, url_image = @UrlImage, updated_at = @UpdatedAt WHERE id = @Id;";
 
         await connection.ExecuteAsync(
             sql,
@@ -33,6 +33,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
                 nugget.Id,
                 nugget.Title,
                 nugget.Content,
+                nugget.IsEnabled,
                 nugget.UrlImage,
                 nugget.UpdatedAt
             },
@@ -63,14 +64,15 @@ public class NuggetRepository : BaseRepository, INuggetRepository
         await connection.ExecuteAsync(sql, new { Id = id }, commandTimeout: 1);
     }
 
-    public async Task<GetAllNuggetsProjection> GetAll(int limit, int offset, CancellationToken cancellationToken)
+    public async Task<GetAllNuggetsProjection> GetAll(bool withDisabledNugget, int limit, int offset, CancellationToken cancellationToken)
     {
-        const string sql = @"
-            SELECT count(*) FROM nuggets;
-            SELECT n.id, n.title, n.content, n.url_image, n.user_id, u.username AS creator, n.created_at, n.updated_at
+        var whereQuery = withDisabledNugget ? "" : "WHERE is_enabled = true";
+
+        var sql = "SELECT count(*) FROM nuggets " + whereQuery + @";
+            SELECT n.id, n.title, n.content, n.is_enabled, n.url_image, n.user_id, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
-                LEFT OUTER JOIN users u on n.user_id = u.id
-            ORDER BY created_at
+                LEFT OUTER JOIN users u on n.user_id = u.id " + whereQuery +
+            @" ORDER BY created_at
             DESC LIMIT @Limit OFFSET @Offset;";
 
         await using var connexion = GetConnection();
@@ -91,7 +93,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     {
         const string sql = @"
             SELECT count(*) FROM nuggets WHERE user_id = @UserId;
-            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.is_enabled, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.user_id = @UserId
@@ -99,7 +101,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
             LIMIT @Limit OFFSET @Offset;";
 
         await using var connexion = GetConnection();
-        using var multi = await connexion.QueryMultipleAsync(
+        await using var multi = await connexion.QueryMultipleAsync(
             sql,
             new { UserId = userId, Limit = limit, Offset = offset },
             commandTimeout: 1);
@@ -115,7 +117,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task<GetNuggetProjection?> GetByIdProjection(Guid id, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.is_enabled, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.id = @Id";
@@ -130,7 +132,7 @@ public class NuggetRepository : BaseRepository, INuggetRepository
     public async Task<Nugget?> GetById(Guid id, CancellationToken cancellationToken)
     {
         const string sql = @"
-            SELECT n.id, n.title, n.content, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
+            SELECT n.id, n.title, n.content, n.is_enabled, n.user_id, n.url_image, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
                 LEFT OUTER JOIN users u on n.user_id = u.id
             WHERE n.id = @Id";

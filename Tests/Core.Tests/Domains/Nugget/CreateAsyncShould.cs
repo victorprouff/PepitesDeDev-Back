@@ -43,6 +43,7 @@ public class CreateAsyncShould
             new CreateNuggetCommand(
                 "Title",
                 "Content",
+                true,
                 GoodGuidUser,
                 "FileNameImage",
                 new MemoryStream()),
@@ -75,6 +76,7 @@ public class CreateAsyncShould
             new CreateNuggetCommand(
                 "Title",
                 "Content",
+                true,
                 GoodGuidUser,
                 "FileNameImage",
                 new MemoryStream(mockData)),
@@ -114,6 +116,7 @@ public class CreateAsyncShould
             new CreateNuggetCommand(
                 "Title",
                 "Content",
+                true,
                 GoodGuidUser,
                 "FileNameImage",
                 new MemoryStream(mockData)),
