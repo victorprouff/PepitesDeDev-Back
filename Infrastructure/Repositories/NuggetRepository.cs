@@ -64,14 +64,15 @@ public class NuggetRepository : BaseRepository, INuggetRepository
         await connection.ExecuteAsync(sql, new { Id = id }, commandTimeout: 1);
     }
 
-    public async Task<GetAllNuggetsProjection> GetAll(int limit, int offset, CancellationToken cancellationToken)
+    public async Task<GetAllNuggetsProjection> GetAll(bool withDisabledNugget, int limit, int offset, CancellationToken cancellationToken)
     {
-        const string sql = @"
-            SELECT count(*) FROM nuggets;
+        var whereQuery = withDisabledNugget ? "" : "WHERE is_enabled = true";
+
+        var sql = "SELECT count(*) FROM nuggets " + whereQuery + @";
             SELECT n.id, n.title, n.content, n.is_enabled, n.url_image, n.user_id, u.username AS creator, n.created_at, n.updated_at
             FROM nuggets n
-                LEFT OUTER JOIN users u on n.user_id = u.id
-            ORDER BY created_at
+                LEFT OUTER JOIN users u on n.user_id = u.id " + whereQuery +
+            @" ORDER BY created_at
             DESC LIMIT @Limit OFFSET @Offset;";
 
         await using var connexion = GetConnection();

@@ -24,9 +24,9 @@ public class NuggetController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetList(CancellationToken cancellationToken, int limit = 10, int offset = 0)
+    public async Task<IActionResult> GetList(CancellationToken cancellationToken, bool withDisabledNugget = false, int limit = 10, int offset = 0)
     {
-        var response = await _nuggetDomain.GetAllAsync(limit, offset, cancellationToken);
+        var response = await _nuggetDomain.GetAllAsync(withDisabledNugget, limit, offset, cancellationToken);
 
         return Ok(new GetAllNuggetResponse(response.NbOfNuggets, response.Nuggets.Select(n => (Nugget)n)));
     }
@@ -88,6 +88,7 @@ public class NuggetController : ControllerBase
                 GetUserId(),
                 nuggetUpdate.Title,
                 nuggetUpdate.Content,
+                nuggetUpdate.IsEnabled,
                 fileName,
                 stream),
             cancellationToken);

@@ -10,7 +10,7 @@ public interface INuggetDomain
     Task<string> UpdateImageAsync(UpdateNuggetImageCommand command, CancellationToken cancellationToken);
     Task DeleteAsync(Guid id, Guid userId, CancellationToken cancellationToken);
     Task<GetNuggetProjection> GetAsync(Guid id, CancellationToken cancellationToken);
-    Task<GetAllNuggetsProjection> GetAllAsync(int limit, int offset, CancellationToken cancellationToken);
+    Task<GetAllNuggetsProjection> GetAllAsync(bool withDisabledNugget, int limit, int offset, CancellationToken cancellationToken);
     Task<GetAllNuggetsProjection> GetAllByUserIdOrAdminAsync(
         Guid getUserId,
         int limit,
