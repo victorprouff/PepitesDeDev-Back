@@ -40,8 +40,7 @@ public class DeleteAsyncShould
 
         SetupNuggetRepositoryMethods();
     }
-    
-    
+
     [Fact]
     public async Task ThrowNotFoundException()
     {
@@ -141,6 +140,7 @@ public class DeleteAsyncShould
                 GoodGuidNugget,
                 "Title",
                 "Content",
+                true,
                 null,
                 GoodGuidUser,
                 FakeClock.FromUtc(2020, 3, 6, 14, 13, 0).GetCurrentInstant(),
@@ -153,6 +153,7 @@ public class DeleteAsyncShould
                 GoodGuidNuggetWithImage,
                 "Title",
                 "Content",
+                true,
                 "https://nuggets-images.host/2020-03-06T14:13:00Z-FileNameImage",
                 GoodGuidUser,
                 FakeClock.FromUtc(2020, 3, 6, 14, 13, 0).GetCurrentInstant(),

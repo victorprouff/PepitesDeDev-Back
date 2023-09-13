@@ -42,6 +42,7 @@ public class NuggetDomain : INuggetDomain
         var newNugget = Nugget.Create(
             command.Title,
             command.Content,
+            command.IsEnabled,
             fullPath,
             command.UserId,
             _clock.GetCurrentInstant());

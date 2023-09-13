@@ -64,7 +64,7 @@ public class NuggetController : ControllerBase
         }
 
         var nuggetId = await _nuggetDomain.CreateAsync(
-            new CreateNuggetCommand(nugget.Title, nugget.Content, GetUserId(), fileName, stream),
+            new CreateNuggetCommand(nugget.Title, nugget.Content, nugget.IsEnabled, GetUserId(), fileName, stream),
             cancellationToken);
 
         return Ok(nuggetId);
