@@ -38,7 +38,7 @@ public class GetAllAsyncShould
     [Fact]
     public async Task ReturnGetAllNuggetsProjection()
     {
-        var act = await _nuggetDomain.GetAllAsync(2, 0, CancellationToken.None);
+        var act = await _nuggetDomain.GetAllAsync(true, 2, 0, CancellationToken.None);
 
         var expectedProjection = new GetAllNuggetsProjection(
             2,
@@ -58,7 +58,7 @@ public class GetAllAsyncShould
                     SecondGuidNugget,
                     "Title2",
                     "Content2",
-                    true,
+                    false,
                     "Url",
                     "The Creator 2",
                     SecondGuidUser,
@@ -68,12 +68,12 @@ public class GetAllAsyncShould
 
         act.Should().BeEquivalentTo(expectedProjection);
 
-        _nuggetRepository.Verify(e => e.GetAll(2, 0, CancellationToken.None), Times.Once);
+        _nuggetRepository.Verify(e => e.GetAll(true, 2, 0, CancellationToken.None), Times.Once);
     }
     
     private void SetupNuggetRepositoryMethods()
     {
-        _nuggetRepository.Setup(e => e.GetAll(2, 0, CancellationToken.None))
+        _nuggetRepository.Setup(e => e.GetAll(true, 2, 0, CancellationToken.None))
             .ReturnsAsync(
                 new GetAllNuggetsProjection(
                     2,
@@ -93,7 +93,7 @@ public class GetAllAsyncShould
                             SecondGuidNugget,
                             "Title2",
                             "Content2",
-                            true,
+                            false,
                             "Url",
                             "The Creator 2",
                             SecondGuidUser,

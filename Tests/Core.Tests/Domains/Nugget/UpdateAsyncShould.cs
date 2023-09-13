@@ -51,6 +51,7 @@ public class UpdateAsyncShould
                 GoodGuidUser,
                 "Title",
                 "Content",
+                true,
                 "FileNameImage",
                 new MemoryStream()),
             CancellationToken.None);
@@ -90,6 +91,7 @@ public class UpdateAsyncShould
                 BadGuidUser,
                 "newTitle",
                 "newContent",
+                true,
                 "newFileNameImage",
                 new MemoryStream()),
             CancellationToken.None);
@@ -130,6 +132,7 @@ public class UpdateAsyncShould
                 GoodGuidUser,
                 "newTitle",
                 "newContent",
+                true,
                 "newFileNameImage",
                 new MemoryStream(mockData)),
             CancellationToken.None);
