@@ -14,12 +14,10 @@ namespace Api.Controllers;
 public class NuggetController : ControllerBase
 {
     private readonly INuggetDomain _nuggetDomain;
-    private readonly IJwtService _jwtService;
 
-    public NuggetController(INuggetDomain nuggetDomain, IJwtService jwtService)
+    public NuggetController(INuggetDomain nuggetDomain, IJwtService jwtService) : base(jwtService)
     {
         _nuggetDomain = nuggetDomain;
-        _jwtService = jwtService;
     }
 
     [AllowAnonymous]
@@ -111,11 +109,5 @@ public class NuggetController : ControllerBase
     {
         _nuggetDomain.DeleteAsync(id, GetUserId(), cancellationToken);
         return Ok();
-    }
-
-    private Guid GetUserId()
-    {
-        var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        return _jwtService.GetUserId(token);
     }
 }

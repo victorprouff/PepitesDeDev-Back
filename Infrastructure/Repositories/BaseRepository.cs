@@ -4,12 +4,12 @@ namespace Infrastructure.Repositories;
 
 public abstract class BaseRepository
 {
-    private readonly string connectionString;
+    private readonly string _connectionString;
 
     protected BaseRepository(string connectionString)
     {
-        this.connectionString = connectionString;
+        _connectionString = connectionString;
     }
 
-    protected NpgsqlConnection GetConnection() => new(connectionString);
+    protected NpgsqlConnection GetConnection() => new(_connectionString);
 }

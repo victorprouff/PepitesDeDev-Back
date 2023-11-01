@@ -13,12 +13,10 @@ namespace Api.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserDomain _userDomain;
-    private readonly IJwtService _jwtService;
-    
-    public UserController(IUserDomain userDomain, IJwtService jwtService)
+
+    public UserController(IUserDomain userDomain, IJwtService jwtService) : base(jwtService)
     {
         _userDomain = userDomain;
-        _jwtService = jwtService;
     }
 
     [AllowAnonymous]
@@ -80,11 +78,5 @@ public class UserController : ControllerBase
     {
         _userDomain.DeleteAsync(id, cancellationToken);
         return Ok();
-    }
-    
-    private Guid GetUserId()
-    {
-        var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        return _jwtService.GetUserId(token);
     }
 }

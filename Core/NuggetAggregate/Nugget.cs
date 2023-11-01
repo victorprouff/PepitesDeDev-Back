@@ -4,7 +4,15 @@ namespace Core.NuggetAggregate;
 
 public class Nugget
 {
-    public Nugget(Guid id, string title, string content, bool isEnabled, string? urlImage, Guid userId, Instant createdAt, Instant? updatedAt)
+    public Nugget(
+        Guid id,
+        string title,
+        string content,
+        bool isEnabled,
+        string? urlImage,
+        Guid userId,
+        Instant createdAt,
+        Instant? updatedAt)
     {
         Id = id;
         Title = title;
@@ -31,19 +39,19 @@ public class Nugget
     
     public void Update(string? title, string? content, bool isEnabled, string? urlImage, Instant updatedAt)
     {
-        if (string.IsNullOrWhiteSpace(title) is false)
+        if (!string.IsNullOrWhiteSpace(title))
         {
             Title = title;
             UpdatedAt = updatedAt;
         }
 
-        if (string.IsNullOrWhiteSpace(content) is false)
+        if (!string.IsNullOrWhiteSpace(content))
         {
             Content = content;
             UpdatedAt = updatedAt;
         }
         
-        if (string.IsNullOrWhiteSpace(urlImage) is false)
+        if (!string.IsNullOrWhiteSpace(urlImage))
         {
             UrlImage = urlImage;
             UpdatedAt = updatedAt;

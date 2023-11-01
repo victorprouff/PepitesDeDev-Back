@@ -34,7 +34,7 @@ public class NuggetEntity
     public string Title { get; set; } = default!;
     public string Content { get; set; } = default!;
     public bool IsEnabled { get; set; }
-    public string? UrlImage { get; set; } = default!;
+    public string? UrlImage { get; set; }
     public string Creator { get; set; } = default!;
     public Instant CreatedAt { get; set; }
     public Instant? UpdatedAt { get; set; }

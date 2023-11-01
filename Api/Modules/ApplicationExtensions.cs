@@ -1,4 +1,5 @@
 using Amazon.S3;
+using Core.CommentAggregate;
 using Core.Interfaces;
 using Core.Models.Authentification;
 using Core.NuggetAggregate;
@@ -23,6 +24,8 @@ public static class ApplicationExtensions
             new NuggetRepository(configuration.GetConnectionString("PepitesDatabase")));
         services.AddTransient<IUserRepository, UserRepository>(_ =>
             new UserRepository(configuration.GetConnectionString("PepitesDatabase")));
+        services.AddTransient<ICommentRepository, CommentRepository>(_ =>
+            new CommentRepository(configuration.GetConnectionString("PepitesDatabase")));
 
         services.AddTransient<IPasswordEncryptor, PasswordEncryptor>();
         
@@ -36,6 +39,7 @@ public static class ApplicationExtensions
                 configuration.GetValue<string>("CleverCloudHost")));
         
         services.AddTransient<IUserDomain, UserDomain>();
+        services.AddTransient<ICommentDomain, CommentDomain>();
 
         services.AddSingleton<IAmazonS3, AmazonS3Client>(_ => new AmazonS3Client(
             configuration.GetValue<string>("CleverCloudAccessKeyId"),
