@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0443E757
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{0ADAE4DF-7647-4BFE-B741-A1A268A5863A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorTest", "BlazorTest\BlazorTest.csproj", "{95A000F6-636D-4812-BB4D-DFD11163EB82}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,10 +44,6 @@ Global
 		{0ADAE4DF-7647-4BFE-B741-A1A268A5863A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ADAE4DF-7647-4BFE-B741-A1A268A5863A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0ADAE4DF-7647-4BFE-B741-A1A268A5863A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{95A000F6-636D-4812-BB4D-DFD11163EB82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{95A000F6-636D-4812-BB4D-DFD11163EB82}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{95A000F6-636D-4812-BB4D-DFD11163EB82}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{95A000F6-636D-4812-BB4D-DFD11163EB82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B69864B8-6C66-4D39-ACB8-2C8FA4ABFFF8} = {0443E757-C766-40CF-876F-B88F0FB7C9A8}
