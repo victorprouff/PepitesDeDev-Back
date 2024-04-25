@@ -20,9 +20,9 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install dependencies
         run: dotnet restore
-      - name: Run
+      - name: Run Publish DbMigration
         run: dotnet publish ./DbMigration/DbMigration.csproj -c Release -o out
-      - name: Run
+      - name: Run DbMigration
         env:
           ConnectionStrings__PepitesDatabase: ${{secrets.CONNECTIONSTRINGS__PEPITESDATABASE}}
         working-directory: ./out
