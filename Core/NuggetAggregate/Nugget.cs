@@ -4,7 +4,15 @@ namespace Core.NuggetAggregate;
 
 public class Nugget
 {
-    public Nugget(Guid id, string title, string content, bool isEnabled, string? urlImage, Guid userId, Instant createdAt, Instant? updatedAt)
+    public Nugget(
+        Guid id,
+        string title,
+        string content,
+        bool isEnabled,
+        string? urlImage,
+        Guid userId,
+        Instant createdAt,
+        Instant? updatedAt)
     {
         Id = id;
         Title = title;

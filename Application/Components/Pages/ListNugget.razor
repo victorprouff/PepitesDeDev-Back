@@ -1,0 +1,72 @@
+@using Application.Models
+@using Application.Services
+@using NodaTime
+
+@attribute [StreamRendering]
+
+<h3>ListNugget</h3>
+
+@if (_nuggets != null && _nuggets.Any())
+{
+    foreach (var nugget in _nuggets)
+    {
+        <div class="card mt-4">
+            <div class="card-header py-3">
+                <div class="row">
+                    <div class="col-md-10">
+                        <h4>
+                            <a class="nav-link" href="/nugget/@nugget.Id">@nugget.Title</a>
+                        </h4>
+                        Le @nugget.CreatedAt par @nugget.Creator
+                    </div>
+                    <div class="col-md-2 d-flex justify-content-end align-items-start btn-group" role="group">
+                        <div class="icon-in-btn-group">
+                            @if (@nugget.IsEnabled)
+                            {
+                                <mat-icon class="align-middle">visibility</mat-icon>
+                            }
+                            else
+                            {
+                                <mat-icon class="align-middle">visibility_off</mat-icon>
+                            }
+                        </div>
+                        <button type="button" class="btn btn-outline-primary">
+                            <mat-icon class="align-middle">edit_note</mat-icon>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger">
+                            <mat-icon class="align-middle">delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                @if (nugget.UrlImage != null)
+                {
+                    <img src="@nugget.UrlImage}}" alt="" class="rounded mx-auto d-block img-size pb-3">
+                }
+                <markdown lineNumbers>@nugget.Content}}</markdown>
+            </div>
+
+        </div>
+    }
+}
+
+
+@code {
+
+    private IEnumerable<Nugget>? _nuggets;
+    private NuggetService _nuggetService;
+
+    protected override Task OnInitializedAsync()
+    {
+        GetNugget();
+
+        return base.OnInitializedAsync();
+    }
+
+    private async Task GetNugget()
+    {
+        _nuggets = await _nuggetService.GetAll(CancellationToken.None);
+    }
+}
