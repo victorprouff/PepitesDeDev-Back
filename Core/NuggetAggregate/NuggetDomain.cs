@@ -127,8 +127,10 @@ public class NuggetDomain : INuggetDomain
         ?? throw new NotFoundException($"The nugget with id {id} is not found.");
 
     public async Task<GetAllNuggetsProjection>
-        GetAllAsync(bool withDisabledNugget, int limit, int offset, CancellationToken cancellationToken) =>
-        await _nuggetRepository.GetAll(withDisabledNugget, limit, offset, cancellationToken);
+        GetAllAsync(bool withDisabledNugget, int limit, int offset, CancellationToken cancellationToken)
+    {
+        return await _nuggetRepository.GetAll(withDisabledNugget, limit, offset, cancellationToken);
+    }
 
     public async Task<GetAllNuggetsProjection> GetAllByUserIdOrAdminAsync(
         Guid userId,

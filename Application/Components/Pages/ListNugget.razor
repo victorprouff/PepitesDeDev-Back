@@ -1,14 +1,15 @@
 @using Application.Models
 @using Application.Services
-@using NodaTime
 
-@attribute [StreamRendering]
+@* @inject NuggetService NuggetService *@
+
+@rendermode InteractiveServer
 
 <h3>ListNugget</h3>
 
-@if (_nuggets != null && _nuggets.Any())
+@if (_nuggets.Any())
 {
-    foreach (var nugget in _nuggets)
+    @foreach (var nugget in _nuggets)
     {
         <div class="card mt-4">
             <div class="card-header py-3">
@@ -54,19 +55,23 @@
 
 
 @code {
+    [Inject] IServiceProvider Sp { get; set; }
 
-    private IEnumerable<Nugget>? _nuggets;
-    private NuggetService _nuggetService;
+    private IEnumerable<Nugget> _nuggets;
+    private INuggetService _nuggetService;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task<Task> OnInitializedAsync()
     {
-        GetNugget();
+        _nuggetService = Sp.GetRequiredService<INuggetService>();
+
+        // await GetNugget();
+        _nuggets = await _nuggetService.GetAll(CancellationToken.None);
 
         return base.OnInitializedAsync();
     }
 
-    private async Task GetNugget()
-    {
-        _nuggets = await _nuggetService.GetAll(CancellationToken.None);
-    }
+    // private async Task GetNugget()
+    // {
+    //     _nuggets = await NuggetService.GetAll(CancellationToken.None);
+    // }
 }
